@@ -1,0 +1,20 @@
+
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  MANAGER
+  VENDOR
+  AFFILIATE
+  CUSTOMER
+}
+
+model User {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  fullName    String
+  role        UserRole @default(CUSTOMER)
+  permissions Json?    @default("{}")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
