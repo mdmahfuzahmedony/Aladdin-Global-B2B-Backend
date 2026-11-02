@@ -1,0 +1,14 @@
+model SupportSetting {
+  id                    String   @id @default(cuid())
+  supportEmail          String   @default("support@aladdin.com.bd")
+  hotline               String   @default("+8801700000000")
+  whatsappNumber        String?  @default("+8801800000000")
+  enableLiveChat        Boolean  @default(true)
+  autoReplyMessage      String?
+  ticketPriorityDefault String   @default("Medium")
+  faqSectionEnabled     Boolean  @default(true)
+  disputeWindowDays     Int      @default(3)
+  updatedAt             DateTime @updatedAt
+
+  @@map("support_settings")
+}

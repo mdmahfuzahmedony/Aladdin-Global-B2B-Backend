@@ -1,0 +1,17 @@
+model Category {
+  id           String     @id @default(uuid())
+  name         String
+  slug         String     @unique
+  type         String?    @default("general")
+  fieldsConfig Json?
+  image        String?
+  icon         String?
+  sortOrder    Int        @default(0)
+  parentId     String?
+
+  parent       Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  children     Category[] @relation("CategoryHierarchy")
+  products     Product[]
+
+  @@map("Category")
+}

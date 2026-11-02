@@ -1,0 +1,18 @@
+model VendorEarning {
+  id               String           @id @default(uuid())
+  vendorId         String
+  vendorOrderId    String           @unique
+  grossAmount      Decimal          @db.Decimal(12, 2)
+  commissionAmount Decimal          @db.Decimal(12, 2)
+  netAmount        Decimal          @db.Decimal(12, 2)
+  status           CommissionStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  vendor      Vendor      @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  vendorOrder VendorOrder @relation(fields: [vendorOrderId], references: [id], onDelete: Cascade)
+
+  @@index([vendorId, status])
+  @@index([vendorId, createdAt])
+}

@@ -1,20 +1,48 @@
+model User {
+  id        String     @id
+  email     String?    @unique
+  fullName  String?
+  role      UserRole   @default(CUSTOMER)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  phone     String?    @unique
+  status    UserStatus @default(ACTIVE)
+  password  String?
 
+  activityLogs         ActivityLog[]
+  affiliate            Affiliate?
+  cart                 Cart?
+  customer             Customer?
+  managerPermissions   ManagerPermission[]
+  notifications        Notification[]
+  productReviews       ProductReview[]
+  notificationSettings UserNotificationSettings?
+  vendor               Vendor?
+  wholesaler           Wholesaler?
+  wishlist             Wishlist?
+
+  vendorOrdersAsCustomer VendorOrder[] @relation("VendorOrderCustomer")
+
+  customerReward          CustomerReward?
+  rewardPointTransactions RewardPointTransaction[]
+
+  pendingCheckouts PendingCheckout[]
+
+  customerOrders CustomerOrder[]
+}
 
 enum UserRole {
   SUPER_ADMIN
-  ADMIN
   MANAGER
   VENDOR
   AFFILIATE
+  WHOLESALER
   CUSTOMER
 }
 
-model User {
-  id          String   @id @default(uuid())
-  email       String   @unique
-  fullName    String
-  role        UserRole @default(CUSTOMER)
-  permissions Json?    @default("{}")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  BANNED
+  PENDING
 }

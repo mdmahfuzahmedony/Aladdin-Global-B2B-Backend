@@ -1,0 +1,220 @@
+src/controllers/admin/banner-controller.ts(61,9): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/admin/banner-controller.ts(244,11): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/admin/banner-controller.ts(326,9): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/admin/banner-controller.ts(391,9): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/admin/banner-controller.ts(408,9): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/admin/banner-controller.ts(606,35): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/admin/banner-controller.ts(617,7): error TS2322: Type 'string | string[]' is not assignable to type 'string | StringFilter<"Banner"> | undefined'.
+  Type 'string[]' is not assignable to type 'string | StringFilter<"Banner"> | undefined'.
+src/controllers/admin/media.controller.ts(135,16): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/admin/media.controller.ts(347,11): error TS2322: Type 'string' is not assignable to type 'MediaCategory'.
+src/controllers/admin/media.controller.ts(425,9): error TS2322: Type 'string' is not assignable to type 'MediaCategory'.
+src/controllers/admin/media.controller.ts(503,18): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/admin/media.controller.ts(535,18): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/admin/media.controller.ts(596,16): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/admin/media.controller.ts(617,16): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/admin/notification-controller.ts(92,9): error TS2322: Type 'string | string[]' is not assignable to type 'string | StringFilter<"Notification"> | undefined'.
+  Type 'string[]' is not assignable to type 'string | StringFilter<"Notification"> | undefined'.
+src/controllers/admin/notification-controller.ts(107,11): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/admin/notification-controller.ts(187,9): error TS2322: Type 'string | string[]' is not assignable to type 'string | StringFilter<"Notification"> | undefined'.
+  Type 'string[]' is not assignable to type 'string | StringFilter<"Notification"> | undefined'.
+src/controllers/admin/notification-controller.ts(201,9): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/courier.controller.ts(60,9): error TS2322: Type 'string | string[]' is not assignable to type 'string | StringFilter<"VendorOrder"> | undefined'.
+  Type 'string[]' is not assignable to type 'string | StringFilter<"VendorOrder"> | undefined'.
+src/controllers/courier.controller.ts(76,15): error TS2339: Property 'courierShipment' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: CustomerOrderStatus; vendorId: string; orderNumber: string; customerId: string; customerOrderId: string | null; ... 11 more ...; note: string | null; }'.
+src/controllers/courier.controller.ts(80,25): error TS2339: Property 'courierShipment' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: CustomerOrderStatus; vendorId: string; orderNumber: string; customerId: string; customerOrderId: string | null; ... 11 more ...; note: string | null; }'.
+src/controllers/courier.controller.ts(126,25): error TS18046: 'result' is of type 'unknown'.
+src/controllers/courier.controller.ts(153,24): error TS18046: 'result' is of type 'unknown'.
+src/controllers/courier.controller.ts(154,20): error TS18046: 'result' is of type 'unknown'.
+src/controllers/courier.controller.ts(156,23): error TS18046: 'result' is of type 'unknown'.
+src/controllers/courier.controller.ts(160,25): error TS18046: 'result' is of type 'unknown'.
+src/controllers/courier.controller.ts(161,39): error TS18046: 'result' is of type 'unknown'.
+src/controllers/courier.controller.ts(167,24): error TS18046: 'result' is of type 'unknown'.
+src/controllers/courier.controller.ts(168,20): error TS18046: 'result' is of type 'unknown'.
+src/controllers/courier.controller.ts(170,23): error TS18046: 'result' is of type 'unknown'.
+src/controllers/courier.controller.ts(174,25): error TS18046: 'result' is of type 'unknown'.
+src/controllers/courier.controller.ts(175,39): error TS18046: 'result' is of type 'unknown'.
+src/controllers/courier.controller.ts(227,9): error TS2322: Type 'string | string[]' is not assignable to type 'string | StringFilter<"CourierShipment"> | undefined'.
+  Type 'string[]' is not assignable to type 'string | StringFilter<"CourierShipment"> | undefined'.
+src/controllers/courier.controller.ts(278,7): error TS18046: 'result' is of type 'unknown'.
+src/controllers/courier.controller.ts(279,7): error TS18046: 'result' is of type 'unknown'.
+src/controllers/customer/cart-controller.ts(392,9): error TS2322: Type 'string | string[]' is not assignable to type 'string | StringFilter<"CartItem"> | undefined'.
+  Type 'string[]' is not assignable to type 'string | StringFilter<"CartItem"> | undefined'.
+src/controllers/customer/cart-controller.ts(411,35): error TS2551: Property 'product' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; productId: string; quantity: number; cartId: string; }'. Did you mean 'productId'?
+src/controllers/customer/cart-controller.ts(464,9): error TS2322: Type 'string | string[]' is not assignable to type 'string | StringFilter<"CartItem"> | undefined'.
+  Type 'string[]' is not assignable to type 'string | StringFilter<"CartItem"> | undefined'.
+src/controllers/customer/customer-order.controller.ts(793,9): error TS2322: Type 'string | string[]' is not assignable to type 'string | StringFilter<"CustomerOrder"> | undefined'.
+  Type 'string[]' is not assignable to type 'string | StringFilter<"CustomerOrder"> | undefined'.
+src/controllers/customer/customer-order.controller.ts(871,13): error TS2322: Type 'string | string[]' is not assignable to type 'string | StringFilter<"VendorOrder"> | undefined'.
+  Type 'string[]' is not assignable to type 'string | StringFilter<"VendorOrder"> | undefined'.
+src/controllers/customer/customer-order.controller.ts(892,13): error TS2322: Type 'string | string[]' is not assignable to type 'string | StringFilter<"VendorOrder"> | undefined'.
+  Type 'string[]' is not assignable to type 'string | StringFilter<"VendorOrder"> | undefined'.
+src/controllers/customer/customer-order.controller.ts(908,34): error TS2339: Property 'items' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: CustomerOrderStatus; vendorId: string; orderNumber: string; customerId: string; customerOrderId: string | null; ... 11 more ...; note: string | null; }'.
+src/controllers/customer/notification.controller.ts(272,11): error TS2322: Type 'string | string[]' is not assignable to type 'string | StringFilter<"Notification"> | undefined'.
+  Type 'string[]' is not assignable to type 'string | StringFilter<"Notification"> | undefined'.
+src/controllers/customer/notification.controller.ts(287,11): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/customer/notification.controller.ts(383,11): error TS2322: Type 'string | string[]' is not assignable to type 'string | StringFilter<"Notification"> | undefined'.
+  Type 'string[]' is not assignable to type 'string | StringFilter<"Notification"> | undefined'.
+src/controllers/customer/notification.controller.ts(397,9): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/customer/wishlist-controller.ts(180,11): error TS2322: Type 'string | string[]' is not assignable to type 'string | StringFilter<"WishlistItem"> | undefined'.
+  Type 'string[]' is not assignable to type 'string | StringFilter<"WishlistItem"> | undefined'.
+src/controllers/customer/wishlist-controller.ts(196,9): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/HomePage/FAQ.controller.ts(156,9): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/HomePage/FAQ.controller.ts(169,9): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/HomePage/FAQ.controller.ts(219,9): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/HomePage/FAQ.controller.ts(232,9): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/order.controller.ts(10,33): error TS2339: Property 'order' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/controllers/order.controller.ts(65,32): error TS2339: Property 'order' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/controllers/order.controller.ts(154,32): error TS2339: Property 'order' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/controllers/order.controller.ts(264,32): error TS2339: Property 'order' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/controllers/order.controller.ts(310,32): error TS2339: Property 'order' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/controllers/order.controller.ts(349,40): error TS2339: Property 'order' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/controllers/order.controller.ts(362,18): error TS2339: Property 'order' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/controllers/order.controller.ts(401,14): error TS2339: Property 'order' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/controllers/order.controller.ts(403,14): error TS2339: Property 'order' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/controllers/order.controller.ts(409,14): error TS2339: Property 'order' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/controllers/order.controller.ts(415,14): error TS2339: Property 'order' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/controllers/order.controller.ts(421,14): error TS2339: Property 'order' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/controllers/order.controller.ts(427,14): error TS2339: Property 'order' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/controllers/order.controller.ts(433,14): error TS2339: Property 'order' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/controllers/order.controller.ts(439,14): error TS2339: Property 'order' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/controllers/payments/vendor-earnings.controller.ts(65,11): error TS2367: This comparison appears to be unintentional because the types 'CommissionStatus' and '"AVAILABLE"' have no overlap.
+src/controllers/payments/vendor-earnings.controller.ts(67,11): error TS2367: This comparison appears to be unintentional because the types 'CommissionStatus' and '"REVERSED"' have no overlap.
+src/controllers/product-review-controller.ts(16,16): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/product-review-controller.ts(29,9): error TS2322: Type 'string | string[]' is not assignable to type 'string | StringFilter<"ProductReview"> | undefined'.
+  Type 'string[]' is not assignable to type 'string | StringFilter<"ProductReview"> | undefined'.
+src/controllers/product-review-controller.ts(50,9): error TS2322: Type 'string | string[]' is not assignable to type 'string | StringFilter<"ProductReview"> | undefined'.
+  Type 'string[]' is not assignable to type 'string | StringFilter<"ProductReview"> | undefined'.
+src/controllers/product-review-controller.ts(61,24): error TS18048: 'stats._avg' is possibly 'undefined'.
+src/controllers/product-review-controller.ts(62,23): error TS18048: 'stats._count' is possibly 'undefined'.
+src/controllers/product-review-controller.ts(62,36): error TS2339: Property 'rating' does not exist on type 'true | { id?: number | undefined; productId?: number | undefined; userId?: number | undefined; rating?: number | undefined; comment?: number | undefined; status?: number | undefined; verified?: number | undefined; createdAt?: number | undefined; updatedAt?: number | undefined; _all?: number | undefined; }'.
+  Property 'rating' does not exist on type 'true'.
+src/controllers/product-review-controller.ts(106,16): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/product-review-controller.ts(119,9): error TS2322: Type 'string | string[]' is not assignable to type 'string | StringFilter<"ProductReview"> | undefined'.
+  Type 'string[]' is not assignable to type 'string | StringFilter<"ProductReview"> | undefined'.
+src/controllers/product-review-controller.ts(133,9): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/Product.controller.ts(1059,16): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/Product.controller.ts(1081,91): error TS2322: Type '{ id: string | string[]; }' is not assignable to type 'ProductWhereInput | ProductWhereInput[] | undefined'.
+  Types of property 'id' are incompatible.
+    Type 'string | string[]' is not assignable to type 'string | StringFilter<"Product"> | undefined'.
+      Type 'string[]' is not assignable to type 'string | StringFilter<"Product"> | undefined'.
+src/controllers/Product.controller.ts(1087,89): error TS2322: Type '{ id: string | string[]; }' is not assignable to type 'ProductWhereInput | ProductWhereInput[] | undefined'.
+  Types of property 'id' are incompatible.
+    Type 'string | string[]' is not assignable to type 'string | StringFilter<"Product"> | undefined'.
+      Type 'string[]' is not assignable to type 'string | StringFilter<"Product"> | undefined'.
+src/controllers/Product.controller.ts(1239,72): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/Product.controller.ts(1241,51): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/Product.controller.ts(1244,56): error TS2322: Type 'string | string[]' is not assignable to type 'string | StringFilter<"ProductDelivery"> | undefined'.
+  Type 'string[]' is not assignable to type 'string | StringFilter<"ProductDelivery"> | undefined'.
+src/controllers/Product.controller.ts(1246,72): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/Product.controller.ts(1248,54): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/Product.controller.ts(1254,18): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/vendor.controller.ts(1549,11): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/vendor.controller.ts(1698,20): error TS2339: Property 'location' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(1701,20): error TS2339: Property 'settings' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(1704,20): error TS2339: Property 'user' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(1768,13): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/vendor.controller.ts(1841,16): error TS2339: Property 'products' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(1844,16): error TS2339: Property 'products' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(1845,12): error TS7006: Parameter 'total' implicitly has an 'any' type.
+src/controllers/vendor.controller.ts(1845,19): error TS7006: Parameter 'product' implicitly has an 'any' type.
+src/controllers/vendor.controller.ts(1852,16): error TS2339: Property 'products' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(1853,12): error TS7006: Parameter 'product' implicitly has an 'any' type.
+src/controllers/vendor.controller.ts(1858,16): error TS2339: Property 'products' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(1859,12): error TS7006: Parameter 'product' implicitly has an 'any' type.
+src/controllers/vendor.controller.ts(1865,16): error TS2339: Property 'products' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(1866,12): error TS7006: Parameter 'product' implicitly has an 'any' type.
+src/controllers/vendor.controller.ts(1883,36): error TS2339: Property 'products' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(1942,25): error TS2339: Property 'user' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(1945,26): error TS2339: Property 'user' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(1948,26): error TS2339: Property 'user' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(1951,26): error TS2339: Property 'user' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(1954,26): error TS2339: Property 'user' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(1957,26): error TS2339: Property 'user' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(1960,26): error TS2339: Property 'user' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(1965,20): error TS2339: Property 'location' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(1968,28): error TS2339: Property 'location' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(1972,28): error TS2339: Property 'location' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(1976,28): error TS2339: Property 'location' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(1980,28): error TS2339: Property 'location' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(1983,28): error TS2339: Property 'location' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(1987,28): error TS2339: Property 'location' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(1991,28): error TS2339: Property 'location' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(2017,20): error TS2339: Property 'payout' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(2020,28): error TS2339: Property 'payout' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(2024,28): error TS2339: Property 'payout' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(2028,28): error TS2339: Property 'payout' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(2032,28): error TS2339: Property 'payout' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(2036,28): error TS2339: Property 'payout' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(2042,20): error TS2339: Property 'settings' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(2045,28): error TS2339: Property 'settings' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(2049,28): error TS2339: Property 'settings' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(2053,28): error TS2339: Property 'settings' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(2057,28): error TS2339: Property 'settings' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(2061,28): error TS2339: Property 'settings' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(2065,28): error TS2339: Property 'settings' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(2070,30): error TS2339: Property 'settings' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(2076,30): error TS2339: Property 'settings' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(2082,30): error TS2339: Property 'settings' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(2087,28): error TS2339: Property 'settings' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(2091,28): error TS2339: Property 'settings' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(2095,28): error TS2339: Property 'settings' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(2100,30): error TS2339: Property 'settings' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(2105,28): error TS2339: Property 'settings' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(2109,28): error TS2339: Property 'settings' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(2113,28): error TS2339: Property 'settings' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(2117,28): error TS2339: Property 'settings' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(2121,28): error TS2339: Property 'settings' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(2125,28): error TS2339: Property 'settings' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(2129,28): error TS2339: Property 'settings' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(2133,28): error TS2339: Property 'settings' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(2137,28): error TS2339: Property 'settings' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(2143,20): error TS2339: Property 'openingHours' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(2144,16): error TS7006: Parameter 'hour' implicitly has an 'any' type.
+src/controllers/vendor.controller.ts(2163,20): error TS2339: Property 'products' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: VendorStatus; userId: string; storeName: string; businessCategory: string | null; commissionRate: Decimal; ... 5 more ...; tinDocUrl: string | null; }'.
+src/controllers/vendor.controller.ts(2164,16): error TS7006: Parameter 'product' implicitly has an 'any' type.
+src/controllers/vendor/vendor-earnings-controller.ts(375,27): error TS18047: 'vendor.payout' is possibly 'null'.
+src/controllers/vendor/vendor-order-controller.ts(139,9): error TS2322: Type 'string | string[]' is not assignable to type 'string | StringFilter<"VendorOrder"> | undefined'.
+  Type 'string[]' is not assignable to type 'string | StringFilter<"VendorOrder"> | undefined'.
+src/controllers/vendor/vendor-order-controller.ts(207,9): error TS2322: Type 'string | string[]' is not assignable to type 'string | StringFilter<"VendorOrder"> | undefined'.
+  Type 'string[]' is not assignable to type 'string | StringFilter<"VendorOrder"> | undefined'.
+src/controllers/vendor/vendor-review-controller.ts(267,9): error TS2322: Type 'string | string[]' is not assignable to type 'string | StringFilter<"ProductReview"> | undefined'.
+  Type 'string[]' is not assignable to type 'string | StringFilter<"ProductReview"> | undefined'.
+src/controllers/vendor/vendor-review-controller.ts(293,26): error TS2339: Property 'user' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: ProductReviewStatus; userId: string; productId: string; rating: number; comment: string | null; verified: boolean; }'.
+src/controllers/vendor/vendor-review-controller.ts(294,23): error TS2339: Property 'user' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: ProductReviewStatus; userId: string; productId: string; rating: number; comment: string | null; verified: boolean; }'.
+src/controllers/vendor/vendor-review-controller.ts(295,25): error TS2551: Property 'product' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: ProductReviewStatus; userId: string; productId: string; rating: number; comment: string | null; verified: boolean; }'. Did you mean 'productId'?
+src/controllers/vendor/vendor-review-controller.ts(296,27): error TS2551: Property 'product' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: ProductReviewStatus; userId: string; productId: string; rating: number; comment: string | null; verified: boolean; }'. Did you mean 'productId'?
+src/controllers/vendor/vendor-review-controller.ts(297,30): error TS2551: Property 'product' does not exist on type '{ id: string; createdAt: Date; updatedAt: Date; status: ProductReviewStatus; userId: string; productId: string; rating: number; comment: string | null; verified: boolean; }'. Did you mean 'productId'?
+src/controllers/vendor/vendor-review-controller.ts(340,9): error TS2322: Type 'string | string[]' is not assignable to type 'string | StringFilter<"ProductReview"> | undefined'.
+  Type 'string[]' is not assignable to type 'string | StringFilter<"ProductReview"> | undefined'.

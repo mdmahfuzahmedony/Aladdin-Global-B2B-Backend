@@ -1,0 +1,45 @@
+model BannerPlacementConfig {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  label       String
+  description String   @default("")
+  width       Int
+  height      Int
+  isEnabled   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  banners     Banner[]
+}
+
+model Banner {
+  id           String                @id @default(cuid())
+  name         String
+  image        String
+  link         String                @default("")
+  placementKey String
+  status       BannerStatus          @default(ACTIVE)
+  startDate    DateTime?
+  endDate      DateTime?
+  sortOrder    Int                   @default(0)
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+  placement    BannerPlacementConfig @relation(fields: [placementKey], references: [key])
+
+  @@index([placementKey])
+  @@index([status])
+}
+
+enum BannerPlacement {
+  TOP_BANNER
+  HOMEPAGE_HERO
+  FLASH_SALE
+  NEW_ARRIVALS
+  BEST_SELLERS
+  FEATURED_PRODUCTS
+  TOP_RATED_PRODUCTS
+}
+
+enum BannerStatus {
+  ACTIVE
+  INACTIVE
+}

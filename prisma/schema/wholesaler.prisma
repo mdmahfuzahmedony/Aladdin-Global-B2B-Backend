@@ -1,0 +1,28 @@
+model Wholesaler {
+  id                        String                 @id @default(uuid())
+  userId                    String                 @unique
+  businessName              String
+  tradeLicenseNo            String
+  verificationStatus        WholesalerVerification @default(PENDING)
+  creditLimit               Decimal                @default(0)
+  createdAt                 DateTime               @default(now())
+  updatedAt                 DateTime               @updatedAt
+  address                   String?
+  businessCategory          String?
+  businessType              String?
+  city                      String?
+  district                  String?
+  interestedCategories      String[]
+  monthlyPurchaseVolume     String?
+  postalCode                String?
+  preferredDeliveryLocation String?
+  preferredPaymentMethod    String?
+  tradeLicenseDocumentUrl   String?
+  user                      User                   @relation(fields: [userId], references: [id])
+}
+
+enum WholesalerVerification {
+  PENDING
+  APPROVED
+  REJECTED
+}

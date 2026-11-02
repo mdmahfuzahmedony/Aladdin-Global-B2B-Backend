@@ -1,0 +1,22 @@
+// model VendorEarning {
+//   id              String             @id @default(uuid())
+//   vendorId        String
+//   vendorOrderId   String
+//   paymentId       String?
+//   orderNumber     String
+
+//   grossAmount     Decimal            @db.Decimal(12, 2)
+//   commission      Decimal            @default(0) @db.Decimal(12, 2)
+//   netAmount       Decimal            @db.Decimal(12, 2)
+
+//   status          VendorEarningStatus @default(PENDING)
+//   availableAt     DateTime?
+//   paidAt          DateTime?
+
+//   createdAt       DateTime           @default(now())
+//   updatedAt       DateTime           @updatedAt
+
+//   @@unique([vendorId, vendorOrderId])
+//   @@index([vendorId, status, createdAt])
+//   @@index([paymentId])
+// }

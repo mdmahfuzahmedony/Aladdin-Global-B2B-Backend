@@ -1,0 +1,23 @@
+model CourierShipment {
+  id            String @id @default(uuid())
+  vendorOrderId String @unique
+
+  courier        String  @default("STEADFAST")
+  consignmentId  String? @unique
+  trackingCode   String? @unique
+  deliveryStatus String  @default("PENDING")
+  bookingStatus  String  @default("PENDING")
+
+  codAmount       Decimal  @default(0) @db.Decimal(12, 2)
+  deliveryCharge  Decimal? @db.Decimal(12, 2)
+  bookingResponse Json?
+
+  bookedAt  DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  vendorOrder VendorOrder @relation(fields: [vendorOrderId], references: [id], onDelete: Cascade)
+
+  @@index([bookingStatus])
+  @@index([deliveryStatus])
+}

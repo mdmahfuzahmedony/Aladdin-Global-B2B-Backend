@@ -1,0 +1,18 @@
+model VendorPayoutTransaction {
+  id                   String       @id @default(uuid())
+  vendorId             String
+  amount               Decimal      @db.Decimal(12, 2)
+  payoutMethod         PayoutMethod
+  status               PayoutStatus @default(PENDING)
+  transactionReference String?      @unique
+  failureReason        String?
+  requestedAt          DateTime     @default(now())
+  processedAt          DateTime?
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@index([vendorId, status])
+  @@index([vendorId, requestedAt])
+}

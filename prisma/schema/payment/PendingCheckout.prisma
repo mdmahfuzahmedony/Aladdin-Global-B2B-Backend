@@ -1,0 +1,31 @@
+enum CheckoutStatus {
+  PENDING
+  PAYMENT_PENDING
+  PAYMENT_PAID
+  COMPLETED
+  CANCELLED
+  EXPIRED
+}
+
+model PendingCheckout {
+  id         String         @id @default(uuid())
+  customerId String
+  status     CheckoutStatus @default(PENDING)
+
+  subtotal       Decimal @db.Decimal(12, 2)
+  deliveryCharge Decimal @db.Decimal(12, 2)
+  totalAmount    Decimal @db.Decimal(12, 2)
+
+  checkoutData Json
+  expiresAt    DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  customer      User           @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  payments      Payment[]
+  customerOrder CustomerOrder?
+
+  @@index([customerId, status])
+  @@index([expiresAt])
+}

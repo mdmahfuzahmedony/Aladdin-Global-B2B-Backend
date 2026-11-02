@@ -1,0 +1,44 @@
+model Product {
+  id               String   @id @default(uuid())
+  title            String
+  sku              String   @unique
+  slug             String   @unique
+  shortDescription String?
+  description      String?
+  stockQuantity    Int
+  categoryId       String
+  vendorId         String
+  brandId          String?
+  attributes       Json?
+  customFields     Json?
+  images           String[]
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  cartItems           CartItem[]
+  featuredAttribute   FeaturedAttribute?
+  flashSaleAttribute  FlashSaleAttribute?
+  newArrivalAttribute NewArrivalAttribute?
+
+  brand    Brand?   @relation(fields: [brandId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+  vendor   Vendor   @relation(fields: [vendorId], references: [id])
+
+  deliverySettings   ProductDelivery?
+  pricing            ProductPricing?
+  reviews            ProductReview[]
+  topRatedAttribute  TopRatedAttribute?
+  topSellerAttribute TopSellerAttribute?
+  trustedAttribute   TrustedAttribute?
+  wishlistItems      WishlistItem[]
+
+  vendorOrderItems VendorOrderItem[] @relation("VendorOrderProduct")
+
+  customerOrderItems CustomerOrderItem[]
+
+  coupon ProductCoupon?
+
+  @@index([categoryId])
+  @@index([vendorId])
+  @@index([brandId])
+}

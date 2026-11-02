@@ -1,0 +1,25 @@
+// model VendorPayout {
+//   id                  String            @id @default(uuid())
+//   vendorId            String
+
+//   provider            PaymentProvider
+//   accountNumber       String
+//   accountHolder       String?
+
+//   amount              Decimal           @db.Decimal(12, 2)
+//   status              VendorPayoutStatus @default(REQUESTED)
+
+//   payoutReference     String            @unique
+//   gatewayTransactionId String?          @unique
+//   adminNote           String?
+//   rejectionReason     String?
+
+//   requestedAt         DateTime          @default(now())
+//   processedAt         DateTime?
+//   completedAt         DateTime?
+
+//   createdAt           DateTime          @default(now())
+//   updatedAt           DateTime          @updatedAt
+
+//   @@index([vendorId, status, requestedAt])
+// }

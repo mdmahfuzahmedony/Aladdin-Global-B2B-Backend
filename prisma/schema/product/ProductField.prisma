@@ -1,0 +1,41 @@
+model ProductField {
+  id          String               @id @default(uuid())
+  name        String
+  key         String               @unique
+  type        ProductFieldType
+  placeholder String?
+  description String?
+  required    Boolean              @default(false)
+  sortOrder   Int                  @default(0)
+  isActive    Boolean              @default(true)
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  options     ProductFieldOption[]
+
+  @@index([type])
+  @@index([isActive])
+}
+
+model ProductFieldOption {
+  id        String       @id @default(uuid())
+  fieldId   String
+  label     String
+  value     String
+  sortOrder Int          @default(0)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  field     ProductField @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+
+  @@unique([fieldId, value])
+  @@index([fieldId])
+}
+
+enum ProductFieldType {
+  TEXT
+  NUMBER
+  SELECT
+  MULTI_SELECT
+  TEXTAREA
+  DATE
+  BOOLEAN
+}

@@ -1,0 +1,63 @@
+model GeneralSetting {
+  id            String   @id @default(cuid())
+  siteName      String   @default("Aladdin B2B")
+  logoUrl       String?
+  supportEmail  String   @default("support@aladdin.com.bd")
+  contactNumber String   @default("+8801700000000")
+  address       String?
+  currency      String   @default("BDT")
+  timezone      String   @default("Asia/Dhaka")
+  updatedAt     DateTime @updatedAt
+  maintenance   Boolean  @default(false)
+
+  @@map("general_settings")
+}
+
+model PaymentSetting {
+  id                String   @id @default(cuid())
+  bkashEnabled      Boolean  @default(true)
+  nagadEnabled      Boolean  @default(true)
+  sslCommerzEnabled Boolean  @default(true)
+  codEnabled        Boolean  @default(true)
+  updatedAt         DateTime @updatedAt
+
+  @@map("payment_settings")
+}
+
+model ShippingSetting {
+  id                  String   @id @default(cuid())
+  radiusKm            Int      @default(3)
+  standardDeliveryFee Float    @default(60.0)
+  expressDeliveryFee  Float    @default(120.0)
+  updatedAt           DateTime @updatedAt
+
+  @@map("shipping_settings")
+}
+
+model CommissionSetting {
+  id                String   @id @default(cuid())
+  defaultPercentage Float    @default(5.0)
+  minPayoutLimit    Float    @default(1000.0)
+  updatedAt         DateTime @updatedAt
+
+  @@map("commission_settings")
+}
+
+model TaxSetting {
+  id            String   @id @default(cuid())
+  vatPercentage Float    @default(7.5)
+  taxIdNumber   String?
+  updatedAt     DateTime @updatedAt
+
+  @@map("tax_settings")
+}
+
+model SecuritySetting {
+  id                 String   @id @default(cuid())
+  twoFactorAuth      Boolean  @default(false)
+  sessionTimeoutMins Int      @default(30)
+  maxLoginAttempts   Int      @default(5)
+  updatedAt          DateTime @updatedAt
+
+  @@map("security_settings")
+}

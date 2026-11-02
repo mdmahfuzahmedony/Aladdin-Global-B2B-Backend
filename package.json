@@ -1,27 +1,44 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "src/index.ts",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
+    "build": "tsc --noEmit",
+    "dev": "nodemon --exec tsx src/index.ts",
+    "start": "tsx src/index.ts",
+    "seed": "tsx prisma/schema/seed.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^7.10.0",
+    "@supabase/supabase-js": "^2.116.0",
+    "@types/pg": "^8.23.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.3",
-    "morgan": "^1.12.0"
+    "morgan": "^1.12.0",
+    "multer": "^2.4.0",
+    "nodemailer": "^10.0.8",
+    "pg": "^8.23.0",
+    "sharp": "^0.35.5"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/multer": "^2.3.0",
+    "@types/node": "^22.20.2",
+    "@types/nodemailer": "^8.0.1",
     "nodemon": "^3.1.14",
-    "prisma": "^7.10.0"
+    "prisma": "^7.10.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.23.13",
+    "typescript": "^5.9.3"
   }
 }

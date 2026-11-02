@@ -1,0 +1,40 @@
+model Affiliate {
+  id                  String                  @id @default(uuid())
+  userId              String                  @unique
+  referralCode        String                  @unique
+  couponCode          String?                 @unique
+  socialMediaLink     String
+  followerCount       Int?
+  status              AffiliateStatus         @default(PENDING)
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
+  payoutAccountName   String?
+  payoutAccountNumber String?
+  payoutMethod        AffiliatePayoutMethod?
+  payoutMobileNumber  String?
+  socialPlatform      AffiliateSocialPlatform
+  user                User                    @relation(fields: [userId], references: [id])
+}
+
+enum AffiliateSocialPlatform {
+  FACEBOOK
+  INSTAGRAM
+  YOUTUBE
+  TIKTOK
+  WEBSITE
+  OTHER
+}
+
+enum AffiliatePayoutMethod {
+  BKASH
+  NAGAD
+  BANK
+}
+
+enum AffiliateStatus {
+  PENDING
+  TRIAL
+  ACTIVE
+  WARNING
+  SUSPENDED
+}

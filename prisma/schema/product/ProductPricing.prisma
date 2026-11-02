@@ -1,0 +1,21 @@
+model ProductPricing {
+  id                       String                   @id @default(uuid())
+  productId                String                   @unique
+  customerRegularPrice     Float
+  customerSalePrice        Float?
+  sellerRegularPrice       Float?
+  sellerSalePrice          Float?
+  wholesalerRegularPrice   Float?
+  wholesalerSalePrice      Float?
+  dropshipPrice            Float?
+  affiliateCommissionType  AffiliateCommissionType?
+  affiliateCommissionValue Float?
+  createdAt                DateTime                 @default(now())
+  updatedAt                DateTime                 @updatedAt
+  product                  Product                  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+enum AffiliateCommissionType {
+  PERCENTAGE
+  FIXED
+}
