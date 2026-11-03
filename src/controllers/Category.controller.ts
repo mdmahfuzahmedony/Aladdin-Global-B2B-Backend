@@ -901,6 +901,68 @@ type MainCategoryRow = Prisma.CategoryGetPayload<{
   };
 }>;
 
+class DuplicateCategoryNameError extends Error {}
+
+function isCategoryUniqueConstraintError(err: unknown): boolean {
+
+  return (
+
+    typeof err === "object" &&
+
+    err !== null &&
+
+    "code" in err &&
+
+    err.code === "P2002"
+
+  );
+
+}
+
+async function ensureCategoryNameAvailable(
+
+  name: string,
+
+  parentId: string | null,
+
+  excludeCategoryId?: string,
+
+): Promise<void> {
+
+  const existing = await prisma.category.findFirst({
+
+    where: {
+
+      name: {
+
+        equals: name,
+
+        mode: "insensitive",
+
+      },
+
+      parentId,
+
+      ...(excludeCategoryId ? { id: { not: excludeCategoryId } } : {}),
+
+    },
+
+    select: {
+
+      id: true,
+
+    },
+
+  });
+
+  if (existing) {
+
+    throw new DuplicateCategoryNameError(`Category "${name}" already exists.`);
+
+  }
+
+}
+
 function generateSlug(name: string): string {
 
   const baseSlug = name
@@ -914,6 +976,12 @@ function generateSlug(name: string): string {
   const randomSuffix = Math.random().toString(36).substring(2, 7);
 
   return `${baseSlug || "category"}-${randomSuffix}`;
+
+}
+
+function generateCategorySlug(name: string, parentSlug?: string): string {
+
+  return generateSlug(parentSlug ? `${parentSlug}-${name}` : name);
 
 }
 
@@ -1393,6 +1461,8 @@ async function createCategoryRecursive(
 
   parentId: string | null,
 
+  parentSlug?: string,
+
 ) {
 
   const cleanName = String(node.name || "").trim();
@@ -1403,6 +1473,8 @@ async function createCategoryRecursive(
 
   }
 
+  await ensureCategoryNameAvailable(cleanName, parentId);
+
   const sortOrder = await getNextSortOrder(parentId);
 
   const created = await prisma.category.create({
@@ -1411,7 +1483,7 @@ async function createCategoryRecursive(
 
       name: cleanName,
 
-      slug: generateSlug(cleanName),
+      slug: generateCategorySlug(cleanName, parentSlug),
 
       parentId,
 
@@ -1429,7 +1501,7 @@ async function createCategoryRecursive(
 
     for (const child of node.children) {
 
-      await createCategoryRecursive(child, created.id);
+      await createCategoryRecursive(child, created.id, created.slug);
 
     }
 
@@ -1485,11 +1557,25 @@ export async function bulkCreateCategories(
 
     console.error("Bulk category create error:", err);
 
-    return res.status(500).json({
+    const duplicateError =
+
+      err instanceof DuplicateCategoryNameError ||
+
+      isCategoryUniqueConstraintError(err);
+
+    return res.status(duplicateError ? 409 : 500).json({
 
       success: false,
 
-      error: err?.message || "সেভ করা যায়নি",
+      error: err instanceof DuplicateCategoryNameError
+
+        ? err.message
+
+        : duplicateError
+
+          ? "Category already exists."
+
+          : err?.message || "সেভ করা যায়নি",
 
     });
 
@@ -1701,41 +1787,9 @@ export async function createCategory(
 
     }
 
-    const existing = await prisma.category.findFirst({
-
-      where: {
-
-        name: {
-
-          equals: cleanName,
-
-          mode: "insensitive",
-
-        },
-
-      },
-
-      select: {
-
-        id: true,
-
-      },
-
-    });
-
-    if (existing) {
-
-      return res.status(409).json({
-
-        success: false,
-
-        error: `Category "${cleanName}" already exists.`,
-
-      });
-
-    }
-
     let cleanParentId: string | null = null;
+
+    let cleanParentSlug: string | undefined;
 
     if (parentId) {
 
@@ -1745,7 +1799,7 @@ export async function createCategory(
 
         where: { id: cleanParentId },
 
-        select: { id: true },
+        select: { id: true, slug: true },
 
       });
 
@@ -1761,7 +1815,11 @@ export async function createCategory(
 
       }
 
+      cleanParentSlug = parent.slug;
+
     }
+
+    await ensureCategoryNameAvailable(cleanName, cleanParentId);
 
     const sortOrder = await getNextSortOrder(cleanParentId);
 
@@ -1771,7 +1829,7 @@ export async function createCategory(
 
         name: cleanName,
 
-        slug: generateSlug(cleanName),
+        slug: generateCategorySlug(cleanName, cleanParentSlug),
 
         parentId: cleanParentId,
 
@@ -1799,11 +1857,25 @@ export async function createCategory(
 
     console.error("Create category error:", err);
 
-    return res.status(500).json({
+    const duplicateError =
+
+      err instanceof DuplicateCategoryNameError ||
+
+      isCategoryUniqueConstraintError(err);
+
+    return res.status(duplicateError ? 409 : 500).json({
 
       success: false,
 
-      error: err?.message || "Category create করা যায়নি",
+      error: err instanceof DuplicateCategoryNameError
+
+        ? err.message
+
+        : duplicateError
+
+          ? "Category already exists."
+
+          : err?.message || "Category create করা যায়নি",
 
     });
 
