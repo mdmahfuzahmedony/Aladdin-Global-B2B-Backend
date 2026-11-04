@@ -12,6 +12,7 @@ import {
   deleteCategory,
   getMainCategoriesWithProductCount,
   reorderCategories,
+  updateCategory,
   updateCategoryImage,
 } from "../controllers/Category.controller";
 
@@ -64,6 +65,13 @@ router.patch(
   requireAuth,
   requireRole("SUPER_ADMIN", "MANAGER"),
   reorderCategories
+);
+
+router.patch(
+  "/:id",
+  requireAuth,
+  requireRole("SUPER_ADMIN", "MANAGER"),
+  updateCategory
 );
 
 router.patch(

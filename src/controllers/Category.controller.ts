@@ -1883,6 +1883,176 @@ export async function createCategory(
 
 }
 
+export async function updateCategory(
+
+  req: AuthRequest,
+
+  res: Response,
+
+) {
+
+  try {
+
+    const id = String(req.params.id || "").trim();
+
+    const cleanName =
+
+      typeof req.body?.name === "string" ? req.body.name.trim() : "";
+
+    if (!id || !cleanName) {
+
+      return res.status(400).json({
+
+        success: false,
+
+        error: "Category id and name are required.",
+
+      });
+
+    }
+
+    const existingCategory = await prisma.category.findUnique({
+
+      where: { id },
+
+      select: {
+
+        id: true,
+
+        name: true,
+
+        slug: true,
+
+        parentId: true,
+
+        parent: {
+
+          select: { slug: true },
+
+        },
+
+        icon: true,
+
+      },
+
+    });
+
+    if (!existingCategory) {
+
+      return res.status(404).json({
+
+        success: false,
+
+        error: "Category পাওয়া যায়নি",
+
+      });
+
+    }
+
+    await ensureCategoryNameAvailable(
+
+      cleanName,
+
+      existingCategory.parentId,
+
+      existingCategory.id,
+
+    );
+
+    const nameChanged = existingCategory.name !== cleanName;
+
+    const category = await prisma.category.update({
+
+      where: { id },
+
+      data: {
+
+        name: cleanName,
+
+        ...(nameChanged
+
+          ? {
+
+              slug: generateCategorySlug(
+
+                cleanName,
+
+                existingCategory.parent?.slug,
+
+              ),
+
+            }
+
+          : {}),
+
+        ...(existingCategory.parentId === null
+
+          ? {
+
+              icon:
+
+                generateCategoryIcon(cleanName) ?? existingCategory.icon,
+
+            }
+
+          : {}),
+
+      },
+
+    });
+
+    return res.status(200).json({
+
+      success: true,
+
+      message: "Category updated successfully.",
+
+      data: category,
+
+    });
+
+  } catch (err: any) {
+
+    console.error("Update category error:", err);
+
+    const duplicateError =
+
+      err instanceof DuplicateCategoryNameError ||
+
+      isCategoryUniqueConstraintError(err);
+
+    if (err?.code === "P2025") {
+
+      return res.status(404).json({
+
+        success: false,
+
+        error: "Category পাওয়া যায়নি",
+
+      });
+
+    }
+
+    return res.status(duplicateError ? 409 : 500).json({
+
+      success: false,
+
+      error: err instanceof DuplicateCategoryNameError
+
+        ? err.message
+
+        : duplicateError
+
+          ? "Category already exists."
+
+          : err?.message || "Category update করা যায়নি",
+
+    });
+
+  }
+
+}
+
 export async function updateCategoryImage(
 
   req: AuthRequest,
