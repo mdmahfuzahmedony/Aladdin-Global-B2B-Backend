@@ -51,14 +51,20 @@ import paymentsRoutes from "./routes/payments/payments.routes";
 
 const app = express();
 
-console.log("🔥 THIS INDEX.TS IS RUNNING");
-
 // =====================================================
 // CORS
 // =====================================================
+const allowedOrigins = new Set(
+  [process.env.FRONTEND_URL, "http://localhost:3000"]
+    .filter((origin): origin is string => Boolean(origin))
+    .map((origin) => origin.replace(/\/+$/, "")),
+);
+
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: (origin, callback) => {
+      callback(null, !origin || allowedOrigins.has(origin));
+    },
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
     credentials: true,
@@ -244,7 +250,7 @@ app.use((req, res) => {
 // =====================================================
 app.use(
   (
-    error: any,
+    error: unknown,
     _req: express.Request,
     res: express.Response,
     next: express.NextFunction,
@@ -255,49 +261,25 @@ app.use(
       return next(error);
     }
 
-    return res.status(error.status || 500).json({
+    const status =
+      typeof error === "object" &&
+      error !== null &&
+      "status" in error &&
+      typeof error.status === "number" &&
+      Number.isInteger(error.status) &&
+      error.status >= 400 &&
+      error.status <= 599
+        ? error.status
+        : 500;
+    const message =
+      status < 500 && error instanceof Error
+        ? error.message
+        : "Internal server error";
+
+    return res.status(status).json({
       success: false,
-      error: error.message || "Internal server error",
+      error: message,
     });
   },
 );
-// =====================================================
-// SERVER
-// =====================================================
-const PORT = Number(process.env.PORT) || 5001;
-
-const server = app.listen(PORT, () => {
-  console.log("🔥 THIS INDEX.TS IS RUNNING");
-  console.log(`🚀 Backend server is running on port ${PORT}`);
-  console.log("🛒 Customer cart: /api/customer/cart");
-  console.log("🛒 Legacy cart: /api/cart");
-  console.log("📦 Customer orders: /api/customer/orders");
-  console.log("💳 Payment initiation: /api/payments/delivery/initiate");
-  console.log(
-    "💳 Mock payment completion: /api/payments/delivery/mock/complete",
-  );
-  console.log("🔔 bKash callback: /api/payments/delivery/bkash/callback");
-});
-
-// =====================================================
-// GRACEFUL SHUTDOWN
-// =====================================================
-async function shutdown() {
-  console.log("Shutting down server...");
-
-  server.close(async () => {
-    try {
-      await prisma.$disconnect();
-      console.log("Database disconnected.");
-      process.exit(0);
-    } catch (error) {
-      console.error("Database disconnect error:", error);
-      process.exit(1);
-    }
-  });
-}
-
-process.on("SIGINT", shutdown);
-process.on("SIGTERM", shutdown);
-
 export default app;

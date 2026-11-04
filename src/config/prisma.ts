@@ -14,6 +14,7 @@ if (!connectionString) {
 
 const adapter = new PrismaPg({
   connectionString,
+  max: 1,
 });
 
 const globalForPrisma = globalThis as unknown as {

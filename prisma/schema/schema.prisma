@@ -1,6 +1,5 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["prismaSchemaFolder"]
 }
 
 datasource db {
@@ -397,4 +396,3 @@ model RewardPointTransaction {
 
   @@index([customerId, createdAt])
 }
-
