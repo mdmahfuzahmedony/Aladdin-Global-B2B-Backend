@@ -79,19 +79,12 @@ app.get("/", (_req, res) => {
   return res.status(200).send("API is running...");
 });
 
-app.get("/api/test", (_req, res) => {
-  return res.status(200).json({
-    success: true,
-    message: "API TEST WORKING",
-  });
+
+app.get("/api/health", (_req, res) => {
+  res.json({ status: "ok" });
 });
 
-app.get("bouu", (_req, res) => {
-  return res.status(200).json({
-    success: true,
-    message: "suraiya",
-  });
-});
+
 
 // =====================================================
 // CART + WISHLIST
