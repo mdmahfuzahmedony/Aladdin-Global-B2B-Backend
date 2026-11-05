@@ -49,6 +49,11 @@ import customerPaymentRoutes from "./routes/customer/customer-payment.routes";
 import customerRewardRoutes from "./routes/customer/customer-reward-routes";
 import paymentsRoutes from "./routes/payments/payments.routes";
 
+// Google Drive Backup
+import googleDriveBackupRoutes from "./routes/vendor/googleDriveBackup.routes";
+import backupAdminRoutes from "./routes/admin/backupAdmin.routes";
+import { googleOAuthCallback } from "./controllers/vendor/googleDriveBackup.controller";
+
 const app = express();
 
 // =====================================================
@@ -173,6 +178,21 @@ app.use("/api/customer/payments", customerPaymentRoutes);
 // ADMIN ORDERS
 // =====================================================
 app.use("/api/admin/orders", adminOrderRoutes);
+
+// =====================================================
+// GOOGLE DRIVE OAUTH CALLBACK (public — no auth needed)
+// =====================================================
+app.get("/api/google/callback", googleOAuthCallback);
+
+// =====================================================
+// GOOGLE DRIVE BACKUP — VENDOR
+// =====================================================
+app.use("/api/vendor", googleDriveBackupRoutes);
+
+// =====================================================
+// BACKUP ADMIN DASHBOARD
+// =====================================================
+app.use("/api/admin/backups", backupAdminRoutes);
 
 // =====================================================
 // TEST USERS + DATABASE

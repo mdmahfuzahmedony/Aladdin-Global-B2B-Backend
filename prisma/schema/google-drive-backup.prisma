@@ -1,0 +1,78 @@
+// ─── Google Drive Backup Feature ─────────────────────────────────────────────
+// Stores vendor Google OAuth tokens and backup history
+
+model VendorGoogleDrive {
+  id           String   @id @default(uuid())
+  vendorId     String   @unique
+
+  // Encrypted OAuth tokens
+  accessToken  String   // AES-256 encrypted
+  refreshToken String   // AES-256 encrypted
+  tokenExpiry  DateTime
+
+  // Google Drive info
+  googleEmail  String
+  driveFolderName String  @default("Aladdin B2B Backups")
+
+  connected    Boolean  @default(true)
+  connectedAt  DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  vendor       Vendor           @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  backups      VendorBackup[]
+
+  @@index([vendorId])
+}
+
+model VendorBackup {
+  id              String       @id @default(uuid())
+  vendorId        String
+  googleDriveId   String
+
+  // Sequential backup number per vendor (e.g. 001, 002)
+  backupNumber    Int
+
+  // Status machine
+  status          BackupStatus @default(PENDING)
+  errorMessage    String?
+  retryCount      Int          @default(0)
+
+  // Google Drive file references
+  customerPdfName    String?   // filename in Drive
+  customerPdfUrl     String?   // Drive view URL
+  customerPdfFileId  String?   // Drive file ID
+
+  productPdfName     String?
+  productPdfUrl      String?
+  productPdfFileId   String?
+
+  // Drive folder for this backup
+  backupFolderName   String?
+  backupFolderId     String?
+
+  // Snapshot counts (at time of backup)
+  customerCount   Int          @default(0)
+  productCount    Int          @default(0)
+
+  startedAt       DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime     @default(now())
+
+  vendor          Vendor       @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  googleDrive     VendorGoogleDrive @relation(fields: [googleDriveId], references: [id], onDelete: Cascade)
+
+  @@unique([vendorId, backupNumber])
+  @@index([vendorId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+enum BackupStatus {
+  PENDING
+  SNAPSHOT_TAKEN
+  PDF_GENERATING
+  UPLOADING
+  VERIFYING
+  SUCCESS
+  FAILED
+}

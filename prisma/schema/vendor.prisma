@@ -33,6 +33,8 @@ model Vendor {
   customerOrderItems CustomerOrderItem[]
 
   storeChangeRequests VendorStoreChangeRequest[]
+  googleDrive         VendorGoogleDrive?
+  backups             VendorBackup[]
 }
 
 model VendorStoreChangeRequest {
