@@ -16,16 +16,19 @@
     "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^7.10.0",
     "@supabase/supabase-js": "^2.116.0",
+    "@types/pdfkit": "^0.17.7",
     "@types/pg": "^8.23.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "googleapis": "^189.0.0",
     "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.3",
     "morgan": "^1.12.0",
     "multer": "^2.4.0",
     "nodemailer": "^10.0.8",
+    "pdfkit": "^0.20.2",
     "pg": "^8.23.0",
     "sharp": "^0.35.5"
   },
@@ -40,6 +43,5 @@
     "ts-node": "^10.9.2",
     "tsx": "^4.23.13",
     "typescript": "5.9.3"
-   
   }
 }
