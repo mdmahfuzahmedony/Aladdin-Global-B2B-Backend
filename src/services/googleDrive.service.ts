@@ -5,7 +5,7 @@ const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "";
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || "";
 const GOOGLE_REDIRECT_URI =
   process.env.GOOGLE_REDIRECT_URI ||
-  "http://localhost:5001/api/google/callback";
+  "http://localhost:6001/api/google/callback";
 
 // ─── OAuth Client Factory ─────────────────────────────────────────────────────
 
@@ -13,7 +13,7 @@ export function createOAuthClient() {
   return new google.auth.OAuth2(
     GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET,
-    GOOGLE_REDIRECT_URI
+    GOOGLE_REDIRECT_URI,
   );
 }
 
@@ -98,7 +98,7 @@ export function buildDriveClient(accessToken: string, refreshToken: string) {
 export async function createDriveFolder(
   drive: ReturnType<typeof buildDriveClient>,
   name: string,
-  parentId?: string
+  parentId?: string,
 ): Promise<string> {
   const { data } = await drive.files.create({
     requestBody: {
@@ -117,7 +117,7 @@ export async function createDriveFolder(
 
 export async function getOrCreateRootFolder(
   drive: ReturnType<typeof buildDriveClient>,
-  folderName: string
+  folderName: string,
 ): Promise<string> {
   // Search for existing root folder
   const { data } = await drive.files.list({
@@ -140,7 +140,7 @@ export async function uploadPDFToDrive(
   drive: ReturnType<typeof buildDriveClient>,
   fileName: string,
   pdfBuffer: Buffer,
-  parentFolderId: string
+  parentFolderId: string,
 ): Promise<{ fileId: string; viewUrl: string }> {
   const readable = Readable.from(pdfBuffer);
 
@@ -167,7 +167,8 @@ export async function uploadPDFToDrive(
 
   return {
     fileId: data.id,
-    viewUrl: data.webViewLink ?? `https://drive.google.com/file/d/${data.id}/view`,
+    viewUrl:
+      data.webViewLink ?? `https://drive.google.com/file/d/${data.id}/view`,
   };
 }
 
@@ -175,7 +176,7 @@ export async function uploadPDFToDrive(
 
 export async function verifyFileExists(
   drive: ReturnType<typeof buildDriveClient>,
-  fileId: string
+  fileId: string,
 ): Promise<boolean> {
   try {
     const { data } = await drive.files.get({ fileId, fields: "id, trashed" });

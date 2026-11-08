@@ -227,6 +227,28 @@ app.get("/api/test-users", async (_req, res) => {
   }
 });
 
+
+app.get("/fariya", (_req, res) => {
+  res.send(`
+    <div style="
+      text-align:center;
+      padding:80px 20px;
+      font-family:Arial;
+      background:#fff0f5;
+      color:#9b4165;
+    ">
+      <h1>💖 Dear Fariya 💖</h1>
+      <h2>You are truly special!</h2>
+      <p style="font-size:18px;">
+        Your smile makes everything brighter,
+        and your presence makes every moment beautiful.
+      </p>
+      <h2>Stay Happy, Keep Smiling! 🌸</h2>
+      <p>With lots of love ❤️</p>
+    </div>
+  `);
+});
+
 // =====================================================
 // WHOLESALER + AFFILIATE + MANAGER
 // =====================================================
@@ -263,6 +285,9 @@ app.use((req, res) => {
     error: `Route not found: ${req.method} ${req.originalUrl}`,
   });
 });
+
+
+
 
 // =====================================================
 // GLOBAL ERROR HANDLER

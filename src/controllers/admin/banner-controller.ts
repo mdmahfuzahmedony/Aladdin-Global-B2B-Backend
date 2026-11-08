@@ -386,14 +386,9 @@ export const deleteBanner = async (
   try {
     const id = String(req.params.id);
 
-    // -------------------------------------------------
     // CHECK EXISTING BANNER
-    // -------------------------------------------------
-
     const banner = await prisma.banner.findUnique({
-      where: {
-        id,
-      },
+      where: { id },
     });
 
     if (!banner) {
@@ -403,37 +398,23 @@ export const deleteBanner = async (
       });
     }
 
-    // -------------------------------------------------
     // DELETE BANNER
-    // -------------------------------------------------
-
     await prisma.banner.delete({
-      where: {
-        id,
-      },
+      where: { id },
     });
 
-    // -------------------------------------------------
     // ACTIVITY LOG
-    // -------------------------------------------------
-
     await createActivity({
       userId: req.user?.id,
-
       action: "DELETE",
-
       title: "Deleted banner",
-
       description: `Banner "${banner.name}" was deleted`,
-
       entityId: banner.id,
-
       entityType: "BANNER",
     });
 
     return res.status(200).json({
       success: true,
-
       message: "Banner deleted successfully",
     });
   } catch (error: any) {
@@ -441,13 +422,15 @@ export const deleteBanner = async (
 
     return res.status(500).json({
       success: false,
-
       message: "Failed to delete banner",
-
       error: error?.message,
     });
   }
 };
+
+// =====================================================
+// GET PUBLIC TOP BANNERS
+// =====================================================
 
 // =====================================================
 // GET PUBLIC TOP BANNERS
@@ -460,66 +443,53 @@ export const getPublicTopBanner = async (
   try {
     const now = new Date();
 
-    const banners = await prisma.banner.findMany({
+    // প্রথমে TOP_BANNER-এর সব রেকর্ড খুঁজবে
+    const allTopBanners = await prisma.banner.findMany({
       where: {
         placementKey: "TOP_BANNER",
-
-        status: "ACTIVE",
-
-        AND: [
-          {
-            OR: [
-              {
-                startDate: null,
-              },
-              {
-                startDate: {
-                  lte: now,
-                },
-              },
-            ],
-          },
-
-          {
-            OR: [
-              {
-                endDate: null,
-              },
-              {
-                endDate: {
-                  gte: now,
-                },
-              },
-            ],
-          },
-        ],
       },
-
-      orderBy: {
-        sortOrder: "asc",
+      include: {
+        placement: true,
       },
+      orderBy: [
+        { sortOrder: "asc" },
+        { createdAt: "desc" },
+      ],
     });
+
+    console.log("ALL TOP BANNERS:", allTopBanners);
+
+    // Active এবং date অনুযায়ী Filter
+    const banners = allTopBanners.filter((banner) => {
+      const isActive = banner.status === "ACTIVE";
+
+      const isStarted =
+        !banner.startDate || banner.startDate <= now;
+
+      const isNotExpired =
+        !banner.endDate || banner.endDate >= now;
+
+      return isActive && isStarted && isNotExpired;
+    });
+
+    console.log("PUBLIC TOP BANNERS:", banners.length);
 
     return res.status(200).json({
       success: true,
+      total: allTopBanners.length,
+      count: banners.length,
       banners,
     });
   } catch (error: any) {
-    console.error(
-      "GET PUBLIC TOP BANNERS ERROR:",
-      error
-    );
+    console.error("GET PUBLIC TOP BANNERS ERROR:", error);
 
     return res.status(500).json({
       success: false,
-
-      message:
-        "Top banner load করতে সমস্যা হয়েছে",
-
+      message: "Top banner load করতে সমস্যা হয়েছে",
       error: error?.message,
     });
   }
-}
+};
 
 
 // =====================================================
