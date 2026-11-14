@@ -123,10 +123,16 @@ export const addToWishlist = async (
       });
 
     if (existingItem) {
+      await prisma.wishlistItem.delete({
+        where: {
+          id: existingItem.id,
+        },
+      });
+
       return res.status(200).json({
         success: true,
-        message: "Product is already in wishlist",
-        item: existingItem,
+        action: "removed",
+        message: "Product removed from wishlist",
       });
     }
 
@@ -146,6 +152,7 @@ export const addToWishlist = async (
 
     return res.status(200).json({
       success: true,
+      action: "added",
       message: "Product added to wishlist",
       item,
     });
@@ -177,10 +184,13 @@ export const removeFromWishlist = async (
     const wishlistItem =
       await prisma.wishlistItem.findFirst({
         where: {
-          id: itemId,
           wishlist: {
             userId,
           },
+          OR: [
+            { id: itemId },
+            { productId: itemId },
+          ],
         },
       });
 

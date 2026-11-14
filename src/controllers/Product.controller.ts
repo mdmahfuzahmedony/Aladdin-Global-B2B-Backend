@@ -1,5 +1,6 @@
 
 import { Response } from "express";
+import { Prisma } from "@prisma/client";
 import { prisma } from "../config/prisma";
 import { AuthRequest } from "../middleware/auth-middleware";
 import { createActivity } from "../services/activity-service";
@@ -8,6 +9,7 @@ import { notifyAdmins } from "../services/notification-service";
 // =====================================================
 // CREATE PRODUCT
 // =====================================================
+
 
 
 export async function createProduct(
@@ -56,7 +58,6 @@ export async function createProduct(
       // Product coupon
       coupon,
     } = req.body;
-    
 
     // AUTHENTICATION
     if (!req.user?.id) {
@@ -108,6 +109,37 @@ export async function createProduct(
         error: "Valid stock quantity is required",
       });
     }
+
+    // =====================================================
+    // NORMALIZE PRODUCT SLUG
+    // =====================================================
+
+    let decodedSlug = slug.trim();
+
+    try {
+      decodedSlug = decodeURIComponent(decodedSlug);
+    } catch {
+      decodedSlug = slug.trim();
+    }
+
+    const finalSlug = decodedSlug
+      .normalize("NFC")
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "");
+
+    if (!finalSlug) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid product slug",
+      });
+    }
+
+    console.log("PRODUCT SLUG:", {
+      original: slug,
+      final: finalSlug,
+    });
 
     // =====================================================
     // COUPON VALIDATION
@@ -219,6 +251,7 @@ export async function createProduct(
 
       if (scope === "NATIONWIDE") {
         const parsedNationwideCharge = Number(nationwideCharge);
+
         if (
           nationwideCharge === undefined ||
           nationwideCharge === null ||
@@ -348,12 +381,16 @@ export async function createProduct(
     let finalVendorId: string;
 
     const isAdminOrManager =
-      req.user.role === "SUPER_ADMIN" || req.user.role === "MANAGER";
+      req.user.role === "SUPER_ADMIN" ||
+      req.user.role === "MANAGER";
 
     if (vendorId && typeof vendorId === "string" && vendorId.trim()) {
       const vendor = await prisma.vendor.findFirst({
         where: {
-          OR: [{ id: vendorId.trim() }, { userId: vendorId.trim() }],
+          OR: [
+            { id: vendorId.trim() },
+            { userId: vendorId.trim() },
+          ],
         },
       });
 
@@ -409,7 +446,7 @@ export async function createProduct(
 
     // CHECK DUPLICATE SLUG
     const existingProduct = await prisma.product.findUnique({
-      where: { slug: slug.trim() },
+      where: { slug: finalSlug },
     });
 
     if (existingProduct) {
@@ -435,371 +472,340 @@ export async function createProduct(
     // CREATE PRODUCT, COUPON, PRICING AND PLACEMENTS
     // =====================================================
 
-   
-const result = await prisma.$transaction(
-  async (tx) => {
-    // ==========================================
-    // CREATE PRODUCT
-    // ==========================================
+    const result = await prisma.$transaction(
+      async (tx) => {
+        // CREATE PRODUCT
+        const product = await tx.product.create({
+          data: {
+            title: title.trim(),
+            slug: finalSlug,
+            sku: sku.trim(),
 
-    const product = await tx.product.create({
-      data: {
-        title: title.trim(),
-        slug: slug.trim(),
-        sku: sku.trim(),
+            shortDescription:
+              typeof shortDescription === "string"
+                ? shortDescription.trim() || null
+                : null,
 
-        shortDescription:
-          typeof shortDescription === "string"
-            ? shortDescription.trim() || null
-            : null,
+            description:
+              typeof description === "string"
+                ? description.trim() || null
+                : null,
 
-        description:
-          typeof description === "string"
-            ? description.trim() || null
-            : null,
+            stockQuantity: Number(stockQuantity),
 
-        stockQuantity: Number(stockQuantity),
+            category: {
+              connect: { id: categoryId },
+            },
 
-        category: {
-          connect: { id: categoryId },
-        },
+            vendor: {
+              connect: { id: finalVendorId },
+            },
 
-        vendor: {
-          connect: { id: finalVendorId },
-        },
+            attributes: attributes ?? null,
+            customFields: customFields ?? null,
+            images: Array.isArray(images) ? images : [],
 
-        attributes: attributes ?? null,
-        customFields: customFields ?? null,
-        images: Array.isArray(images) ? images : [],
+            ...(deliveryData
+              ? {
+                  deliverySettings: {
+                    create: {
+                      scope: deliveryData.scope,
+                      weightKg: deliveryData.weightKg,
+                      nationwideCharge:
+                        deliveryData.nationwideCharge ?? null,
+                      rates: {
+                        create: deliveryData.rates,
+                      },
+                    },
+                  },
+                }
+              : {}),
+          },
+        });
 
-        ...(deliveryData
-          ? {
-              deliverySettings: {
-                create: {
-                  scope: deliveryData.scope,
-                  weightKg: deliveryData.weightKg,
-                  nationwideCharge: deliveryData.nationwideCharge ?? null,
-                  rates: {
-                    create: deliveryData.rates,
+        // SAVE PRODUCT COUPON
+        console.log("RECEIVED COUPON:", coupon ?? null);
+        console.log("VALIDATED COUPON DATA:", couponData);
+
+        if (couponData) {
+          const savedCoupon = await tx.productCoupon.create({
+            data: {
+              productId: product.id,
+              couponName: couponData.couponName,
+              discount: couponData.discount,
+              isActive: couponData.isActive,
+            },
+          });
+
+          console.log("COUPON SAVED SUCCESSFULLY:", savedCoupon);
+        } else {
+          console.log("NO COUPON TO SAVE");
+        }
+
+        // SAVE PRICING
+        const hasPricing =
+          customerRegularPrice !== undefined ||
+          customerSalePrice !== undefined ||
+          sellerRegularPrice !== undefined ||
+          sellerSalePrice !== undefined ||
+          wholesalerRegularPrice !== undefined ||
+          wholesalerSalePrice !== undefined ||
+          dropshipPrice !== undefined ||
+          affiliateCommissionType !== undefined ||
+          affiliateCommissionValue !== undefined;
+
+        if (hasPricing) {
+          await tx.productPricing.create({
+            data: {
+              productId: product.id,
+
+              customerRegularPrice:
+                customerRegularPrice !== null &&
+                customerRegularPrice !== undefined &&
+                customerRegularPrice !== ""
+                  ? Number(customerRegularPrice)
+                  : 0,
+
+              customerSalePrice:
+                customerSalePrice !== null &&
+                customerSalePrice !== undefined &&
+                customerSalePrice !== ""
+                  ? Number(customerSalePrice)
+                  : null,
+
+              sellerRegularPrice:
+                sellerRegularPrice !== null &&
+                sellerRegularPrice !== undefined &&
+                sellerRegularPrice !== ""
+                  ? Number(sellerRegularPrice)
+                  : null,
+
+              sellerSalePrice:
+                sellerSalePrice !== null &&
+                sellerSalePrice !== undefined &&
+                sellerSalePrice !== ""
+                  ? Number(sellerSalePrice)
+                  : null,
+
+              wholesalerRegularPrice:
+                wholesalerRegularPrice !== null &&
+                wholesalerRegularPrice !== undefined &&
+                wholesalerRegularPrice !== ""
+                  ? Number(wholesalerRegularPrice)
+                  : null,
+
+              wholesalerSalePrice:
+                wholesalerSalePrice !== null &&
+                wholesalerSalePrice !== undefined &&
+                wholesalerSalePrice !== ""
+                  ? Number(wholesalerSalePrice)
+                  : null,
+
+              dropshipPrice:
+                dropshipPrice !== null &&
+                dropshipPrice !== undefined &&
+                dropshipPrice !== ""
+                  ? Number(dropshipPrice)
+                  : null,
+
+              affiliateCommissionType:
+                affiliateCommissionType || null,
+
+              affiliateCommissionValue:
+                affiliateCommissionValue !== null &&
+                affiliateCommissionValue !== undefined &&
+                affiliateCommissionValue !== ""
+                  ? Number(affiliateCommissionValue)
+                  : null,
+            },
+          });
+        }
+
+        // NEW ARRIVAL
+        if (placements?.newArrival) {
+          const item = placements.newArrival;
+
+          await tx.newArrivalAttribute.create({
+            data: {
+              productId: product.id,
+              badgeText: item.badgeText?.trim() || null,
+
+              displayOrder:
+                item.displayOrder !== undefined &&
+                item.displayOrder !== null &&
+                item.displayOrder !== ""
+                  ? Number(item.displayOrder)
+                  : null,
+
+              startDate: item.startDate
+                ? new Date(item.startDate)
+                : null,
+
+              endDate: item.endDate
+                ? new Date(item.endDate)
+                : null,
+            },
+          });
+        }
+
+        // FLASH SALE
+        if (placements?.flashSale) {
+          const item = placements.flashSale;
+
+          await tx.flashSaleAttribute.create({
+            data: {
+              productId: product.id,
+              flashSalePrice: Number(item.flashSalePrice),
+              flashSaleStock: Number(item.flashSaleStock),
+
+              soldCount:
+                item.soldCount !== undefined
+                  ? Number(item.soldCount)
+                  : 0,
+
+              startTime: new Date(item.startTime),
+              endTime: new Date(item.endTime),
+              discountBadge: item.discountBadge?.trim() || null,
+            },
+          });
+        }
+
+        // FEATURED
+        if (placements?.featured) {
+          const item = placements.featured;
+
+          await tx.featuredAttribute.create({
+            data: {
+              productId: product.id,
+
+              featuredBadgeText:
+                item.featuredBadgeText?.trim() || null,
+
+              bannerImage: item.bannerImage?.trim() || null,
+
+              displayOrder:
+                item.displayOrder !== undefined &&
+                item.displayOrder !== null &&
+                item.displayOrder !== ""
+                  ? Number(item.displayOrder)
+                  : null,
+            },
+          });
+        }
+
+        // TOP SELLER
+        if (placements?.topSeller) {
+          const item = placements.topSeller;
+
+          await tx.topSellerAttribute.create({
+            data: {
+              productId: product.id,
+
+              unitsSold:
+                item.unitsSold !== undefined
+                  ? Number(item.unitsSold)
+                  : 0,
+
+              salesBadge: item.salesBadge?.trim() || null,
+              isExpressEligible: Boolean(item.isExpressEligible),
+            },
+          });
+        }
+
+        // TOP RATED
+        if (placements?.topRated) {
+          const item = placements.topRated;
+
+          await tx.topRatedAttribute.create({
+            data: {
+              productId: product.id,
+
+              averageRating:
+                item.averageRating !== undefined
+                  ? Number(item.averageRating)
+                  : 0,
+
+              totalReviews:
+                item.totalReviews !== undefined
+                  ? Number(item.totalReviews)
+                  : 0,
+
+              reviewSnippet: item.reviewSnippet?.trim() || null,
+            },
+          });
+        }
+
+        // TRUSTED
+        if (placements?.trusted) {
+          const item = placements.trusted;
+
+          await tx.trustedAttribute.create({
+            data: {
+              productId: product.id,
+              trustBadgeText: item.trustBadgeText?.trim() || null,
+              warrantyInfo: item.warrantyInfo?.trim() || null,
+              officialStore: Boolean(item.officialStore),
+            },
+          });
+        }
+
+        // RETURN PRODUCT WITH RELATED DATA
+        return tx.product.findUnique({
+          where: { id: product.id },
+
+          include: {
+            category: true,
+
+            vendor: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    fullName: true,
+                    phone: true,
+                    email: true,
                   },
                 },
               },
-            }
-          : {}),
-      },
-    });
+            },
 
-    // ==========================================
-    // SAVE PRODUCT COUPON
-    // ==========================================
+            pricing: true,
+            coupon: true,
 
-    console.log("RECEIVED COUPON:", coupon ?? null);
-    console.log("VALIDATED COUPON DATA:", couponData);
-
-    if (couponData) {
-      const savedCoupon = await tx.productCoupon.create({
-        data: {
-          productId: product.id,
-          couponName: couponData.couponName,
-          discount: couponData.discount,
-          isActive: couponData.isActive,
-        },
-      });
-
-      console.log("COUPON SAVED SUCCESSFULLY:", savedCoupon);
-    } else {
-      console.log("NO COUPON TO SAVE");
-    }
-
-    // ==========================================
-    // SAVE PRICING
-    // ==========================================
-
-    const hasPricing =
-      customerRegularPrice !== undefined ||
-      customerSalePrice !== undefined ||
-      sellerRegularPrice !== undefined ||
-      sellerSalePrice !== undefined ||
-      wholesalerRegularPrice !== undefined ||
-      wholesalerSalePrice !== undefined ||
-      dropshipPrice !== undefined ||
-      affiliateCommissionType !== undefined ||
-      affiliateCommissionValue !== undefined;
-
-    if (hasPricing) {
-      await tx.productPricing.create({
-        data: {
-          productId: product.id,
-
-          customerRegularPrice:
-            customerRegularPrice !== null &&
-            customerRegularPrice !== undefined &&
-            customerRegularPrice !== ""
-              ? Number(customerRegularPrice)
-              : 0,
-
-          customerSalePrice:
-            customerSalePrice !== null &&
-            customerSalePrice !== undefined &&
-            customerSalePrice !== ""
-              ? Number(customerSalePrice)
-              : null,
-
-          sellerRegularPrice:
-            sellerRegularPrice !== null &&
-            sellerRegularPrice !== undefined &&
-            sellerRegularPrice !== ""
-              ? Number(sellerRegularPrice)
-              : null,
-
-          sellerSalePrice:
-            sellerSalePrice !== null &&
-            sellerSalePrice !== undefined &&
-            sellerSalePrice !== ""
-              ? Number(sellerSalePrice)
-              : null,
-
-          wholesalerRegularPrice:
-            wholesalerRegularPrice !== null &&
-            wholesalerRegularPrice !== undefined &&
-            wholesalerRegularPrice !== ""
-              ? Number(wholesalerRegularPrice)
-              : null,
-
-          wholesalerSalePrice:
-            wholesalerSalePrice !== null &&
-            wholesalerSalePrice !== undefined &&
-            wholesalerSalePrice !== ""
-              ? Number(wholesalerSalePrice)
-              : null,
-
-          dropshipPrice:
-            dropshipPrice !== null &&
-            dropshipPrice !== undefined &&
-            dropshipPrice !== ""
-              ? Number(dropshipPrice)
-              : null,
-
-          affiliateCommissionType:
-            affiliateCommissionType || null,
-
-          affiliateCommissionValue:
-            affiliateCommissionValue !== null &&
-            affiliateCommissionValue !== undefined &&
-            affiliateCommissionValue !== ""
-              ? Number(affiliateCommissionValue)
-              : null,
-        },
-      });
-    }
-
-    // ==========================================
-    // NEW ARRIVAL
-    // ==========================================
-
-    if (placements?.newArrival) {
-      const item = placements.newArrival;
-
-      await tx.newArrivalAttribute.create({
-        data: {
-          productId: product.id,
-          badgeText: item.badgeText?.trim() || null,
-
-          displayOrder:
-            item.displayOrder !== undefined &&
-            item.displayOrder !== null &&
-            item.displayOrder !== ""
-              ? Number(item.displayOrder)
-              : null,
-
-          startDate: item.startDate
-            ? new Date(item.startDate)
-            : null,
-
-          endDate: item.endDate
-            ? new Date(item.endDate)
-            : null,
-        },
-      });
-    }
-
-    // ==========================================
-    // FLASH SALE
-    // ==========================================
-
-    if (placements?.flashSale) {
-      const item = placements.flashSale;
-
-      await tx.flashSaleAttribute.create({
-        data: {
-          productId: product.id,
-          flashSalePrice: Number(item.flashSalePrice),
-          flashSaleStock: Number(item.flashSaleStock),
-
-          soldCount:
-            item.soldCount !== undefined
-              ? Number(item.soldCount)
-              : 0,
-
-          startTime: new Date(item.startTime),
-          endTime: new Date(item.endTime),
-          discountBadge: item.discountBadge?.trim() || null,
-        },
-      });
-    }
-
-    // ==========================================
-    // FEATURED
-    // ==========================================
-
-    if (placements?.featured) {
-      const item = placements.featured;
-
-      await tx.featuredAttribute.create({
-        data: {
-          productId: product.id,
-
-          featuredBadgeText:
-            item.featuredBadgeText?.trim() || null,
-
-          bannerImage: item.bannerImage?.trim() || null,
-
-          displayOrder:
-            item.displayOrder !== undefined &&
-            item.displayOrder !== null &&
-            item.displayOrder !== ""
-              ? Number(item.displayOrder)
-              : null,
-        },
-      });
-    }
-
-    // ==========================================
-    // TOP SELLER
-    // ==========================================
-
-    if (placements?.topSeller) {
-      const item = placements.topSeller;
-
-      await tx.topSellerAttribute.create({
-        data: {
-          productId: product.id,
-
-          unitsSold:
-            item.unitsSold !== undefined
-              ? Number(item.unitsSold)
-              : 0,
-
-          salesBadge: item.salesBadge?.trim() || null,
-          isExpressEligible: Boolean(item.isExpressEligible),
-        },
-      });
-    }
-
-    // ==========================================
-    // TOP RATED
-    // ==========================================
-
-    if (placements?.topRated) {
-      const item = placements.topRated;
-
-      await tx.topRatedAttribute.create({
-        data: {
-          productId: product.id,
-
-          averageRating:
-            item.averageRating !== undefined
-              ? Number(item.averageRating)
-              : 0,
-
-          totalReviews:
-            item.totalReviews !== undefined
-              ? Number(item.totalReviews)
-              : 0,
-
-          reviewSnippet: item.reviewSnippet?.trim() || null,
-        },
-      });
-    }
-
-    // ==========================================
-    // TRUSTED
-    // ==========================================
-
-    if (placements?.trusted) {
-      const item = placements.trusted;
-
-      await tx.trustedAttribute.create({
-        data: {
-          productId: product.id,
-          trustBadgeText: item.trustBadgeText?.trim() || null,
-          warrantyInfo: item.warrantyInfo?.trim() || null,
-          officialStore: Boolean(item.officialStore),
-        },
-      });
-    }
-
-    // ==========================================
-    // RETURN PRODUCT WITH RELATED DATA
-    // ==========================================
-
-    return tx.product.findUnique({
-      where: { id: product.id },
-
-      include: {
-        category: true,
-
-        vendor: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                fullName: true,
-                phone: true,
-                email: true,
+            deliverySettings: {
+              include: {
+                rates: true,
               },
             },
+
+            newArrivalAttribute: true,
+            flashSaleAttribute: true,
+            featuredAttribute: true,
+            topSellerAttribute: true,
+            topRatedAttribute: true,
+            trustedAttribute: true,
           },
-        },
-
-        pricing: true,
-        coupon: true,
-
-        deliverySettings: {
-          include: {
-            rates: true,
-          },
-        },
-
-        newArrivalAttribute: true,
-        flashSaleAttribute: true,
-        featuredAttribute: true,
-        topSellerAttribute: true,
-        topRatedAttribute: true,
-        trustedAttribute: true,
+        });
       },
-    });
-  },
-  {
-    maxWait: 10000,
-    timeout: 20000,
-  }
-);
+      {
+        maxWait: 10000,
+        timeout: 20000,
+      }
+    );
 
-return res.status(201).json({
-  success: true,
-  message: "Product created successfully",
-  data: result,
-});
-
-
+    // PRODUCT ACTIVITY & ADMIN NOTIFICATION
     try {
       const createdProduct = result as any;
       const currentUserId = req.user?.id;
+
       if (createdProduct && currentUserId) {
         const role = req.user?.role || "USER";
-        const titleLog = `নতুন পণ্য যোগ করা হয়েছে: ${createdProduct.title}`;
-        const descLog = `${role === "VENDOR" ? "ভেন্ডর" : "অ্যাডমিন"} "${createdProduct.title}" পণ্যটি প্ল্যাটফর্মে যুক্ত করেছে।`;
+
+        const titleLog =
+          `নতুন পণ্য যোগ করা হয়েছে: ${createdProduct.title}`;
+
+        const descLog =
+          `${role === "VENDOR" ? "ভেন্ডর" : "অ্যাডমিন"} "${createdProduct.title}" পণ্যটি প্ল্যাটফর্মে যুক্ত করেছে।`;
 
         await createActivity({
           userId: currentUserId,
@@ -827,6 +833,7 @@ return res.status(201).json({
       message: "Product created successfully",
       data: result,
     });
+
   } catch (error: any) {
     console.error("CREATE PRODUCT ERROR:", error);
 
@@ -840,9 +847,14 @@ return res.status(201).json({
 }
 
 
+
 // =====================================================
 // GET HOME PRODUCTS
 // =====================================================
+
+
+
+
 
 export async function getHomeProducts(
   req: any,
@@ -858,9 +870,12 @@ export async function getHomeProducts(
 
     console.log("🔥 PRODUCT CONTROLLER UPDATED");
 
-    const include = {
+    // Common include for all home product placements
+    const include: Prisma.ProductInclude = {
+      // Category
       category: true,
 
+      // Vendor information
       vendor: {
         include: {
           user: {
@@ -871,28 +886,54 @@ export async function getHomeProducts(
               email: true,
             },
           },
+          location: true,
+          settings: true,
         },
       },
 
+      // All product pricing
       pricing: true,
 
+      // Delivery settings
       deliverySettings: {
         include: {
           rates: true,
         },
       },
 
+      // Product reviews: Published only
+      reviews: {
+        where: {
+          status: "PUBLISHED" as const,
+        },
+        select: {
+          id: true,
+          rating: true,
+          comment: true,
+          verified: true,
+          createdAt: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+
+      // Product placement attributes
       newArrivalAttribute: true,
       featuredAttribute: true,
       topSellerAttribute: true,
       topRatedAttribute: true,
       flashSaleAttribute: true,
       trustedAttribute: true,
+
+      // Brand information
+      brand: true,
     };
 
     let products;
 
     switch (placement) {
+      // NEW ARRIVALS
       case "new-arrivals":
         products = await prisma.product.findMany({
           where: {
@@ -907,6 +948,7 @@ export async function getHomeProducts(
         });
         break;
 
+      // FEATURED PRODUCTS
       case "featured":
         products = await prisma.product.findMany({
           where: {
@@ -923,6 +965,7 @@ export async function getHomeProducts(
         });
         break;
 
+      // BEST SELLERS
       case "best-sellers":
         products = await prisma.product.findMany({
           where: {
@@ -939,6 +982,7 @@ export async function getHomeProducts(
         });
         break;
 
+      // TOP RATED
       case "top-rated":
         products = await prisma.product.findMany({
           where: {
@@ -955,6 +999,7 @@ export async function getHomeProducts(
         });
         break;
 
+      // FLASH SALE
       case "flash-sale":
         products = await prisma.product.findMany({
           where: {
@@ -971,6 +1016,7 @@ export async function getHomeProducts(
         });
         break;
 
+      // JUST FOR YOU
       case "just-for-you":
         products = await prisma.product.findMany({
           include,
@@ -980,6 +1026,7 @@ export async function getHomeProducts(
         });
         break;
 
+      // INVALID PLACEMENT
       default:
         return res.status(400).json({
           success: false,
@@ -991,6 +1038,7 @@ export async function getHomeProducts(
       success: true,
       data: products,
     });
+
   } catch (error: any) {
     console.error("GET HOME PRODUCTS ERROR:", error);
 
@@ -1004,6 +1052,20 @@ export async function getHomeProducts(
 }
 
 // =====================================================
+// NORMALIZE PRODUCT SLUG
+// =====================================================
+
+function normalizeProductSlug(value: string): string {
+  return value
+    .trim()
+    .normalize("NFC")
+    .toLowerCase()
+    .replace(/[\s_]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+// =====================================================
 // GET SINGLE PRODUCT BY SLUG
 // =====================================================
 
@@ -1012,20 +1074,42 @@ export async function getProductBySlug(
   res: Response
 ) {
   try {
-    const slug = String(req.params.slug ?? "");
+    // Express automatically decodes URL parameters.
+    const rawSlug = String(req.params.slug ?? "").trim();
 
-    if (!slug) {
+    if (!rawSlug) {
       return res.status(400).json({
         success: false,
         error: "Product slug is required",
       });
     }
 
+    const normalizedSlug = normalizeProductSlug(rawSlug);
+
+    console.log("PRODUCT SLUG LOOKUP:", {
+      rawSlug,
+      normalizedSlug,
+    });
+
+    // Search both new normalized slug and old existing slug.
     const product = await prisma.product.findFirst({
       where: {
         OR: [
-          { slug },
-          { id: slug },
+          {
+            slug: {
+              equals: normalizedSlug,
+              mode: "insensitive",
+            },
+          },
+          {
+            slug: {
+              equals: rawSlug,
+              mode: "insensitive",
+            },
+          },
+          {
+            id: rawSlug,
+          },
         ],
       },
 
@@ -1042,7 +1126,6 @@ export async function getProductBySlug(
                 email: true,
               },
             },
-
             location: true,
             settings: true,
           },
@@ -1069,11 +1152,18 @@ export async function getProductBySlug(
     });
 
     if (!product) {
+      console.warn("PRODUCT NOT FOUND:", {
+        rawSlug,
+        normalizedSlug,
+      });
+
       return res.status(404).json({
         success: false,
         error: "Product not found",
       });
     }
+
+    // VENDOR METRICS
 
     let positiveSellerRating = 96;
     let shippingOnTime = 98;
@@ -1082,43 +1172,66 @@ export async function getProductBySlug(
 
     if (product.vendorId) {
       try {
-        const [totalPublished, positiveCount, avgRating] = await Promise.all([
+        const [
+          totalPublished,
+          positiveCount,
+          avgRating,
+        ] = await Promise.all([
           prisma.productReview.count({
             where: {
-              product: { vendorId: product.vendorId },
+              product: {
+                vendorId: product.vendorId,
+              },
               status: "PUBLISHED",
             },
           }),
+
           prisma.productReview.count({
             where: {
-              product: { vendorId: product.vendorId },
+              product: {
+                vendorId: product.vendorId,
+              },
               status: "PUBLISHED",
-              rating: { gte: 4 },
+              rating: {
+                gte: 4,
+              },
             },
           }),
+
           prisma.productReview.aggregate({
             where: {
-              product: { vendorId: product.vendorId },
+              product: {
+                vendorId: product.vendorId,
+              },
               status: "PUBLISHED",
             },
-            _avg: { rating: true },
+            _avg: {
+              rating: true,
+            },
           }),
         ]);
 
         totalVendorReviews = totalPublished;
+
         if (totalPublished > 0) {
-          positiveSellerRating = Math.round((positiveCount / totalPublished) * 100);
+          positiveSellerRating = Math.round(
+            (positiveCount / totalPublished) * 100
+          );
+
           averageVendorRating = avgRating._avg.rating
             ? Number(avgRating._avg.rating.toFixed(1))
             : 4.8;
         }
       } catch (err) {
-        console.error("Error computing vendor metrics:", err);
+        console.error("VENDOR METRICS ERROR:", err);
       }
     }
 
+    // FINAL RESPONSE
+
     const responseData = {
       ...product,
+
       vendor: product.vendor
         ? {
             ...product.vendor,
@@ -1134,6 +1247,7 @@ export async function getProductBySlug(
       success: true,
       data: responseData,
     });
+
   } catch (error: any) {
     console.error("GET PRODUCT BY SLUG ERROR:", error);
 
@@ -1145,6 +1259,7 @@ export async function getProductBySlug(
     });
   }
 }
+
 
 // =====================================================
 // GET ALL PRODUCTS (ADMIN)
@@ -1202,7 +1317,6 @@ export async function getAllProducts(
     });
   }
 }
-
 // =====================================================
 // UPDATE PRODUCT
 // =====================================================
@@ -1797,8 +1911,6 @@ export async function updateProduct(req: AuthRequest, res: Response) {
     });
   }
 }
-
-
 // =====================================================
 // GET PRODUCTS FOR PRODUCTS PAGE
 // =====================================================
@@ -1987,8 +2099,6 @@ export async function getProducts(
     });
   }
 }
-
-
 // =====================================================
 // DELETE PRODUCT
 // =====================================================
