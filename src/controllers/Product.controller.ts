@@ -5,6 +5,7 @@ import { prisma } from "../config/prisma";
 import { AuthRequest } from "../middleware/auth-middleware";
 import { createActivity } from "../services/activity-service";
 import { notifyAdmins } from "../services/notification-service";
+import { getBilingualKeywords } from "../utils/bilingualSearch";
 
 // =====================================================
 // CREATE PRODUCT
@@ -1074,8 +1075,7 @@ export async function getProductBySlug(
   res: Response
 ) {
   try {
-    // Express automatically decodes URL parameters.
-    const rawSlug = String(req.params.slug ?? "").trim();
+    let rawSlug = String(req.params.slug ?? "").trim();
 
     if (!rawSlug) {
       return res.status(400).json({
@@ -1083,6 +1083,15 @@ export async function getProductBySlug(
         error: "Product slug is required",
       });
     }
+
+    // Fully decode the slug in case it was percent-encoded once or multiple times
+    try {
+      while (rawSlug.includes("%")) {
+        const decoded = decodeURIComponent(rawSlug);
+        if (decoded === rawSlug) break;
+        rawSlug = decoded;
+      }
+    } catch {}
 
     const normalizedSlug = normalizeProductSlug(rawSlug);
 
@@ -1106,6 +1115,12 @@ export async function getProductBySlug(
               equals: rawSlug,
               mode: "insensitive",
             },
+          },
+          {
+            slug: normalizedSlug,
+          },
+          {
+            slug: rawSlug,
           },
           {
             id: rawSlug,
@@ -1227,10 +1242,141 @@ export async function getProductBySlug(
       }
     }
 
+    // RELATED PRODUCTS (Strictly restricted to the same category or truly related sibling categories)
+    let relatedProducts: any[] = [];
+    try {
+      // 1. Direct same subcategory products
+      relatedProducts = await prisma.product.findMany({
+        where: {
+          categoryId: product.categoryId,
+          NOT: { id: product.id },
+        },
+        include: {
+          pricing: true,
+          topRatedAttribute: true,
+          topSellerAttribute: true,
+          flashSaleAttribute: true,
+        },
+        take: 12,
+        orderBy: { createdAt: "desc" },
+      });
+
+      // 2. If fewer than 12, expand ONLY to truly related sibling subcategories under the SAME parent category
+      if (relatedProducts.length < 12 && product.category) {
+        const parentId = product.category.parentId;
+        let relatedCatIds: string[] = [];
+
+        const catNameLower = (product.category.name || "").toLowerCase();
+        const isBook = catNameLower.includes("book") || catNameLower.includes("বই");
+        const isStationery = catNameLower.includes("stationery") || catNameLower.includes("স্টেশনারি");
+        const isMedicine =
+          catNameLower.includes("medicine") ||
+          catNameLower.includes("otc") ||
+          catNameLower.includes("prescription") ||
+          catNameLower.includes("healthcare") ||
+          catNameLower.includes("diabetes") ||
+          catNameLower.includes("dental") ||
+          catNameLower.includes("herbal") ||
+          catNameLower.includes("device") ||
+          catNameLower.includes("sexual") ||
+          catNameLower.includes("ওষুধ");
+        const isBeauty =
+          !isMedicine &&
+          (catNameLower.includes("beauty") ||
+            catNameLower.includes("care") ||
+            catNameLower.includes("skin") ||
+            catNameLower.includes("cream") ||
+            catNameLower.includes("রূপচর্চা"));
+
+        if (parentId) {
+          // Current category is a subcategory -> find sibling subcategories under same parent
+          const siblings = await prisma.category.findMany({
+            where: {
+              parentId: parentId,
+            },
+            select: { id: true, name: true },
+          });
+
+          const filteredSiblings = siblings.filter((s) => {
+            if (s.id === product.categoryId) return false;
+            const sLower = (s.name || "").toLowerCase();
+
+            // If current is a book, only include other book subcategories (NEVER stationery)
+            if (isBook) {
+              return sLower.includes("book") && !sLower.includes("stationery");
+            }
+            // If current is stationery, only include stationery
+            if (isStationery) {
+              return sLower.includes("stationery");
+            }
+            // If current is medicine, only include medicine/healthcare (NEVER beauty/creams)
+            if (isMedicine) {
+              return (
+                (sLower.includes("medicine") ||
+                  sLower.includes("otc") ||
+                  sLower.includes("prescription") ||
+                  sLower.includes("healthcare") ||
+                  sLower.includes("diabetes") ||
+                  sLower.includes("dental") ||
+                  sLower.includes("herbal") ||
+                  sLower.includes("device") ||
+                  sLower.includes("sexual")) &&
+                !sLower.includes("beauty")
+              );
+            }
+            // If current is beauty, only include beauty and care (NEVER medicine)
+            if (isBeauty) {
+              return (
+                (sLower.includes("beauty") ||
+                  sLower.includes("care") ||
+                  sLower.includes("skin")) &&
+                !sLower.includes("medicine") &&
+                !sLower.includes("otc") &&
+                !sLower.includes("prescription")
+              );
+            }
+            // Otherwise, general siblings under same parent
+            return true;
+          });
+
+          relatedCatIds = filteredSiblings.map((c) => c.id);
+        } else {
+          // Current category is a root parent category -> find its direct child subcategories
+          const children = await prisma.category.findMany({
+            where: { parentId: product.categoryId },
+            select: { id: true },
+          });
+          relatedCatIds = children.map((c) => c.id);
+        }
+
+        if (relatedCatIds.length > 0) {
+          const excludeIds = [product.id, ...relatedProducts.map((p) => p.id)];
+          const siblingProducts = await prisma.product.findMany({
+            where: {
+              categoryId: { in: relatedCatIds },
+              NOT: { id: { in: excludeIds } },
+            },
+            include: {
+              pricing: true,
+              topRatedAttribute: true,
+              topSellerAttribute: true,
+              flashSaleAttribute: true,
+            },
+            take: 12 - relatedProducts.length,
+            orderBy: { createdAt: "desc" },
+          });
+          relatedProducts = [...relatedProducts, ...siblingProducts];
+        }
+      }
+    } catch (err) {
+      console.error("RELATED PRODUCTS QUERY ERROR:", err);
+    }
+
     // FINAL RESPONSE
 
     const responseData = {
       ...product,
+      relatedProducts,
 
       vendor: product.vendor
         ? {
@@ -1836,6 +1982,193 @@ export async function updateProduct(req: AuthRequest, res: Response) {
         }
       }
 
+      // Create, update or remove product placements / attributes
+      if (body.placements !== undefined) {
+        const placements = body.placements;
+
+        // NEW ARRIVAL
+        if (placements?.newArrival) {
+          const item = placements.newArrival;
+          await tx.newArrivalAttribute.upsert({
+            where: { productId: targetId },
+            create: {
+              productId: targetId,
+              badgeText: item.badgeText?.trim() || null,
+              displayOrder:
+                item.displayOrder !== undefined &&
+                item.displayOrder !== null &&
+                item.displayOrder !== ""
+                  ? Number(item.displayOrder)
+                  : null,
+              startDate: item.startDate ? new Date(item.startDate) : null,
+              endDate: item.endDate ? new Date(item.endDate) : null,
+            },
+            update: {
+              badgeText: item.badgeText?.trim() || null,
+              displayOrder:
+                item.displayOrder !== undefined &&
+                item.displayOrder !== null &&
+                item.displayOrder !== ""
+                  ? Number(item.displayOrder)
+                  : null,
+              startDate: item.startDate ? new Date(item.startDate) : null,
+              endDate: item.endDate ? new Date(item.endDate) : null,
+            },
+          });
+        } else {
+          await tx.newArrivalAttribute.deleteMany({
+            where: { productId: targetId },
+          });
+        }
+
+        // FLASH SALE
+        if (placements?.flashSale) {
+          const item = placements.flashSale;
+          await tx.flashSaleAttribute.upsert({
+            where: { productId: targetId },
+            create: {
+              productId: targetId,
+              flashSalePrice: Number(item.flashSalePrice),
+              flashSaleStock: Number(item.flashSaleStock),
+              soldCount:
+                item.soldCount !== undefined ? Number(item.soldCount) : 0,
+              startTime: new Date(item.startTime),
+              endTime: new Date(item.endTime),
+              discountBadge: item.discountBadge?.trim() || null,
+            },
+            update: {
+              flashSalePrice: Number(item.flashSalePrice),
+              flashSaleStock: Number(item.flashSaleStock),
+              soldCount:
+                item.soldCount !== undefined ? Number(item.soldCount) : 0,
+              startTime: new Date(item.startTime),
+              endTime: new Date(item.endTime),
+              discountBadge: item.discountBadge?.trim() || null,
+            },
+          });
+        } else {
+          await tx.flashSaleAttribute.deleteMany({
+            where: { productId: targetId },
+          });
+        }
+
+        // FEATURED
+        if (placements?.featured) {
+          const item = placements.featured;
+          await tx.featuredAttribute.upsert({
+            where: { productId: targetId },
+            create: {
+              productId: targetId,
+              featuredBadgeText: item.featuredBadgeText?.trim() || null,
+              bannerImage: item.bannerImage?.trim() || null,
+              displayOrder:
+                item.displayOrder !== undefined &&
+                item.displayOrder !== null &&
+                item.displayOrder !== ""
+                  ? Number(item.displayOrder)
+                  : null,
+            },
+            update: {
+              featuredBadgeText: item.featuredBadgeText?.trim() || null,
+              bannerImage: item.bannerImage?.trim() || null,
+              displayOrder:
+                item.displayOrder !== undefined &&
+                item.displayOrder !== null &&
+                item.displayOrder !== ""
+                  ? Number(item.displayOrder)
+                  : null,
+            },
+          });
+        } else {
+          await tx.featuredAttribute.deleteMany({
+            where: { productId: targetId },
+          });
+        }
+
+        // TOP SELLER
+        if (placements?.topSeller) {
+          const item = placements.topSeller;
+          await tx.topSellerAttribute.upsert({
+            where: { productId: targetId },
+            create: {
+              productId: targetId,
+              unitsSold:
+                item.unitsSold !== undefined ? Number(item.unitsSold) : 0,
+              salesBadge: item.salesBadge?.trim() || null,
+              isExpressEligible: Boolean(item.isExpressEligible),
+            },
+            update: {
+              unitsSold:
+                item.unitsSold !== undefined ? Number(item.unitsSold) : 0,
+              salesBadge: item.salesBadge?.trim() || null,
+              isExpressEligible: Boolean(item.isExpressEligible),
+            },
+          });
+        } else {
+          await tx.topSellerAttribute.deleteMany({
+            where: { productId: targetId },
+          });
+        }
+
+        // TOP RATED
+        if (placements?.topRated) {
+          const item = placements.topRated;
+          await tx.topRatedAttribute.upsert({
+            where: { productId: targetId },
+            create: {
+              productId: targetId,
+              averageRating:
+                item.averageRating !== undefined
+                  ? Number(item.averageRating)
+                  : 0,
+              totalReviews:
+                item.totalReviews !== undefined
+                  ? Number(item.totalReviews)
+                  : 0,
+              reviewSnippet: item.reviewSnippet?.trim() || null,
+            },
+            update: {
+              averageRating:
+                item.averageRating !== undefined
+                  ? Number(item.averageRating)
+                  : 0,
+              totalReviews:
+                item.totalReviews !== undefined
+                  ? Number(item.totalReviews)
+                  : 0,
+              reviewSnippet: item.reviewSnippet?.trim() || null,
+            },
+          });
+        } else {
+          await tx.topRatedAttribute.deleteMany({
+            where: { productId: targetId },
+          });
+        }
+
+        // TRUSTED
+        if (placements?.trusted) {
+          const item = placements.trusted;
+          await tx.trustedAttribute.upsert({
+            where: { productId: targetId },
+            create: {
+              productId: targetId,
+              trustBadgeText: item.trustBadgeText?.trim() || null,
+              warrantyInfo: item.warrantyInfo?.trim() || null,
+              officialStore: Boolean(item.officialStore),
+            },
+            update: {
+              trustBadgeText: item.trustBadgeText?.trim() || null,
+              warrantyInfo: item.warrantyInfo?.trim() || null,
+              officialStore: Boolean(item.officialStore),
+            },
+          });
+        } else {
+          await tx.trustedAttribute.deleteMany({
+            where: { productId: targetId },
+          });
+        }
+      }
+
       return tx.product.findUnique({
         where: { id: targetId },
         include: {
@@ -1921,9 +2254,13 @@ export async function getProducts(
   res: Response
 ) {
   try {
-    const { type, search } = req.query;
+    const { type, search, limit, categoryId } = req.query;
 
     const where: any = {};
+
+    if (categoryId && typeof categoryId === "string" && categoryId.trim()) {
+      where.categoryId = categoryId.trim();
+    }
 
     // =====================================================
     // SECTION / PLACEMENT FILTER
@@ -1978,63 +2315,99 @@ export async function getProducts(
     }
 
     // =====================================================
-    // SEARCH
+    // BILINGUAL SEARCH (BANGLA & ENGLISH)
     // =====================================================
 
     if (
       typeof search === "string" &&
       search.trim()
     ) {
-      const keyword = search.trim();
+      const keywords = getBilingualKeywords(search);
+      const orConditions: any[] = [];
 
-      where.OR = [
-        {
-          title: {
-            contains: keyword,
-            mode: "insensitive",
-          },
-        },
-        {
-          sku: {
-            contains: keyword,
-            mode: "insensitive",
-          },
-        },
-        {
-          category: {
-            name: {
-              contains: keyword,
+      for (const kw of keywords) {
+        orConditions.push(
+          {
+            title: {
+              contains: kw,
               mode: "insensitive",
             },
           },
-        },
-        {
-          vendor: {
-            storeName: {
-              contains: keyword,
+          {
+            sku: {
+              contains: kw,
               mode: "insensitive",
             },
           },
-        },
-        {
-          vendor: {
-            user: {
-              fullName: {
-                contains: keyword,
+          {
+            slug: {
+              contains: kw,
+              mode: "insensitive",
+            },
+          },
+          {
+            shortDescription: {
+              contains: kw,
+              mode: "insensitive",
+            },
+          },
+          {
+            description: {
+              contains: kw,
+              mode: "insensitive",
+            },
+          },
+          {
+            category: {
+              name: {
+                contains: kw,
                 mode: "insensitive",
               },
             },
           },
-        },
-      ];
+          {
+            brand: {
+              name: {
+                contains: kw,
+                mode: "insensitive",
+              },
+            },
+          },
+          {
+            vendor: {
+              storeName: {
+                contains: kw,
+                mode: "insensitive",
+              },
+            },
+          },
+          {
+            vendor: {
+              user: {
+                fullName: {
+                  contains: kw,
+                  mode: "insensitive",
+                },
+              },
+            },
+          },
+        );
+      }
+
+      if (orConditions.length > 0) {
+        where.OR = orConditions;
+      }
     }
 
     // =====================================================
     // FETCH PRODUCTS WITH COUPON
     // =====================================================
 
+    const limitNum = limit ? parseInt(String(limit), 10) : undefined;
+
     const products = await prisma.product.findMany({
       where,
+      take: limitNum && !isNaN(limitNum) && limitNum > 0 ? limitNum : undefined,
 
       include: {
         category: true,
