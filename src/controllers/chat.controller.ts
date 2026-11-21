@@ -82,7 +82,7 @@ export const startOrGetConversation = async (req: Request, res: Response) => {
 // 2. Fetch Conversations based on User Role (Customer / Vendor / Admin)
 export const getConversations = async (req: Request, res: Response) => {
   try {
-    const { role, userId, storeName, filter } = req.query;
+    const { role, userId, storeName, customerName, filter } = req.query;
 
     const whereClause: any = {};
 
@@ -96,6 +96,7 @@ export const getConversations = async (req: Request, res: Response) => {
     } else if (role === "CUSTOMER") {
       const orConditions: any[] = [];
       if (userId) orConditions.push({ customerId: String(userId) });
+      if (customerName) orConditions.push({ customerName: String(customerName) });
       if (orConditions.length > 0) {
         whereClause.OR = orConditions;
       }
@@ -172,13 +173,32 @@ export const sendMessage = async (req: Request, res: Response) => {
     });
 
     // Update conversation lastMessageAt & suspicious activity flag
-    await prisma.chatConversation.update({
+    const updatedConv = await prisma.chatConversation.update({
       where: { id: conversationId },
       data: {
         lastMessageAt: new Date(),
         ...(inspection.isSuspicious ? { hasSuspiciousActivity: true } : {}),
       },
     });
+
+    // If vendor replied, create a notification for the customer
+    if (senderRole === "VENDOR" && updatedConv?.customerId) {
+      try {
+        await prisma.notification.create({
+          data: {
+            userId: updatedConv.customerId,
+            type: "CHAT_MESSAGE",
+            title: `${senderName || "ভেন্ডর"} থেকে নতুন মেসেজ`,
+            message: inspection.cleanText.slice(0, 150),
+            entityId: conversationId,
+            entityType: "CHAT_CONVERSATION",
+            isRead: false,
+          },
+        });
+      } catch (notifError) {
+        console.warn("Could not create notification for customer:", notifError);
+      }
+    }
 
     return res.status(201).json({
       success: true,
