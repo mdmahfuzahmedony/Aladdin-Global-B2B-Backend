@@ -1,0 +1,58 @@
+enum ChatConversationType {
+  CUSTOMER_VENDOR
+  CUSTOMER_ADMIN_COMPLAINT
+  VENDOR_ADMIN
+}
+
+enum ChatSenderRole {
+  CUSTOMER
+  VENDOR
+  ADMIN
+}
+
+model ChatConversation {
+  id                    String               @id @default(uuid())
+  type                  ChatConversationType @default(CUSTOMER_VENDOR)
+
+  customerId            String?
+  customerName          String
+  vendorId              String?
+  vendorName            String
+
+  productId             String?
+  productTitle          String?
+  productSku            String?
+  productPrice          String?
+  productImage          String?
+
+  hasSuspiciousActivity Boolean              @default(false)
+  lastMessageAt         DateTime             @default(now())
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+
+  messages              ChatMessage[]
+
+  @@map("chat_conversations")
+}
+
+model ChatMessage {
+  id                String           @id @default(uuid())
+  conversationId    String
+  conversation      ChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  senderId          String?
+  senderRole        ChatSenderRole
+  senderName        String
+
+  text              String           @db.Text
+  rawText           String?          @db.Text
+  hasSensitiveData  Boolean          @default(false)
+  isSuspicious      Boolean          @default(false)
+  suspiciousReasons String[]         @default([])
+  isComplaint       Boolean          @default(false)
+  isRead            Boolean          @default(false)
+
+  createdAt         DateTime         @default(now())
+
+  @@map("chat_messages")
+}

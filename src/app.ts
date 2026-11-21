@@ -54,6 +54,9 @@ import googleDriveBackupRoutes from "./routes/vendor/googleDriveBackup.routes";
 import backupAdminRoutes from "./routes/admin/backupAdmin.routes";
 import { googleOAuthCallback } from "./controllers/vendor/googleDriveBackup.controller";
 
+// B2B Chat & Messaging
+import chatRoutes from "./routes/chat.routes";
+
 const app = express();
 
 // =====================================================
@@ -157,6 +160,11 @@ app.use("/api/customers/rewards", customerRewardRoutes);
 // OTP
 // =====================================================
 app.use("/api/otp", otpRoutes);
+
+// =====================================================
+// B2B CHAT & MESSAGING
+// =====================================================
+app.use("/api/chat", chatRoutes);
 
 // =====================================================
 // PRODUCT ROUTES
